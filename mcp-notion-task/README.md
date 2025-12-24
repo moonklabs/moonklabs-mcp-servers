@@ -1,12 +1,13 @@
-# MCP Boilerplate
+# MCP Notion Task
 
-TypeScript로 작성된 MCP (Model Context Protocol) 서버 보일러플레이트입니다.
+Notion MKL작업 데이터베이스 관리를 위한 MCP (Model Context Protocol) 서버입니다.
 
 ## 기능
 
-- **Tools**: AI가 실행할 수 있는 도구 (계산, API 호출 등)
-- **Resources**: AI가 읽을 수 있는 데이터 소스
-- **Prompts**: 재사용 가능한 프롬프트 템플릿
+- **작업 조회**: 개별 작업, 목록, 내 스프린트 작업 조회
+- **작업 관리**: 생성, 수정, 상태 변경, 보관
+- **진행 로그**: 마크다운 형식의 진행 로그 추가
+- **페이지 내용**: Notion 페이지 본문 조회 (마크다운 변환)
 
 ## 빠른 시작
 
@@ -14,163 +15,195 @@ TypeScript로 작성된 MCP (Model Context Protocol) 서버 보일러플레이�
 # 의존성 설치
 npm install
 
-# 개발 모드 실행 (stdio)
-npm run dev
+# 환경 변수 설정
+cp .env.example .env
+# .env 파일에 Notion API 토큰과 데이터베이스 ID 입력
 
-# MCP Inspector로 테스트
-npm run inspector
+# 개발 모드 실행
+npm run dev          # stdio 서버
+npm run dev:http     # HTTP 서버 (포트 3000)
+
+# 테스트
+npm test
+```
+
+## 환경 변수
+
+| 변수명 | 필수 | 설명 |
+|--------|------|------|
+| `NOTION_API_TOKEN` | O | Notion Integration 토큰 |
+| `TASK_DATABASE_ID` | O | MKL작업 데이터베이스 ID |
+| `SPRINT_DATABASE_ID` | O | 스프린트 데이터베이스 ID |
+
+## MCP 도구
+
+### 조회
+
+| 도구 | 설명 | 주요 파라미터 |
+|------|------|---------------|
+| `get-task` | 작업 상세 조회 | `taskId` |
+| `list-tasks` | 작업 목록 조회 | `status?`, `assignee?`, `sprintNumber?`, `limit?` |
+| `get-my-sprint-tasks` | 내 스프린트 작업 | `email`, `sprintNumber`, `status?` |
+| `get-task-content` | 페이지 본문 조회 | `taskId` |
+
+### 관리
+
+| 도구 | 설명 | 주요 파라미터 |
+|------|------|---------------|
+| `create-task` | 작업 생성 | `title`, `sprintNumber?`, `assignee?`, `priority?` |
+| `update-task` | 작업 수정 | `taskId`, `title?`, `description?`, `priority?`, ... |
+| `update-task-status` | 상태 변경 | `taskId`, `status` |
+| `add-task-log` | 진행 로그 추가 | `taskId`, `content`, `author`, `logType?` |
+| `archive-task` | 작업 보관 | `taskId` |
+
+### 상태 값
+
+- `대기중` - 시작 전
+- `진행중` - 작업 중
+- `완료` - 완료됨
+- `보류` - 일시 중단
+
+### 로그 타입
+
+- `progress` - 일반 진행 로그 (기본값)
+- `blocker` - 차단 사항
+- `decision` - 결정 사항
+- `review` - 리뷰 내용
+
+## 사용 예시
+
+### Claude Desktop 설정
+
+```json
+{
+  "mcpServers": {
+    "notion-task": {
+      "command": "node",
+      "args": ["/path/to/mcp-notion-task/dist/stdio.js"],
+      "env": {
+        "NOTION_API_TOKEN": "secret_xxx",
+        "TASK_DATABASE_ID": "xxx",
+        "SPRINT_DATABASE_ID": "xxx"
+      }
+    }
+  }
+}
+```
+
+### HTTP 서버 배포
+
+```bash
+# 서버 시작
+npm run start:http
+
+# Docker
+docker build -t mcp-notion-task .
+docker run -p 3000:3000 --env-file .env mcp-notion-task
+```
+
+### 도구 호출 예시
+
+```typescript
+// 내 스프린트 작업 조회
+{
+  "tool": "get-my-sprint-tasks",
+  "arguments": {
+    "email": "user@example.com",
+    "sprintNumber": 5,
+    "status": "진행중"
+  }
+}
+
+// 진행 로그 추가
+{
+  "tool": "add-task-log",
+  "arguments": {
+    "taskId": "page-id-xxx",
+    "content": "## 작업 완료\n- API 연동 완료\n- 테스트 통과",
+    "author": "홍길동",
+    "logType": "progress"
+  }
+}
 ```
 
 ## 스크립트
 
 | 명령어 | 설명 |
 |--------|------|
-| `npm run dev` | stdio 서버 개발 모드 실행 |
-| `npm run dev:http` | HTTP 서버 개발 모드 실행 (watch) |
+| `npm run dev` | stdio 서버 개발 모드 |
+| `npm run dev:http` | HTTP 서버 개발 모드 (watch) |
 | `npm run build` | TypeScript 빌드 |
-| `npm start` | stdio 서버 프로덕션 실행 |
-| `npm run start:http` | HTTP 서버 프로덕션 실행 |
-| `npm run inspector` | MCP Inspector로 서버 테스트 |
-| `npm run typecheck` | TypeScript 타입 검사 |
+| `npm start` | stdio 서버 프로덕션 |
+| `npm run start:http` | HTTP 서버 프로덕션 |
+| `npm test` | Vitest 테스트 실행 |
+| `npm run test:coverage` | 커버리지 리포트 |
+| `npm run inspector` | MCP Inspector로 테스트 |
 
 ## 프로젝트 구조
 
 ```
 src/
-├── stdio.ts          # stdio transport 서버 (Claude Desktop용)
-├── http.ts           # Streamable HTTP 서버 (원격 배포용)
-├── tools/            # MCP 도구 정의
-│   ├── index.ts      # 도구 등록 헬퍼
-│   ├── greet.ts      # 인사 도구 예제
-│   └── calculator.ts # 계산기 도구 예제
-├── resources/        # MCP 리소스 정의
-│   ├── index.ts      # 리소스 등록 헬퍼
-│   └── files.ts      # 파일 리소스 예제
-└── prompts/          # MCP 프롬프트 정의
-    ├── index.ts      # 프롬프트 등록 헬퍼
-    └── templates.ts  # 프롬프트 템플릿 예제
+├── stdio.ts              # stdio transport 진입점
+├── http.ts               # HTTP transport 진입점
+├── config/
+│   └── index.ts          # 환경변수 관리
+├── notion/
+│   ├── client.ts         # Notion 클라이언트
+│   └── types.ts          # Task, TaskStatus 타입
+├── tools/
+│   ├── index.ts          # 도구 등록
+│   └── task/             # 9개 도구 구현
+│       ├── get.ts / getLogic.ts
+│       ├── list.ts / listLogic.ts
+│       ├── mySprint.ts / mySprintLogic.ts
+│       ├── updateStatus.ts / updateStatusLogic.ts
+│       ├── update.ts / updateLogic.ts
+│       ├── addLog.ts / addLogLogic.ts
+│       ├── getContent.ts / getContentLogic.ts
+│       ├── create.ts / createLogic.ts
+│       └── archive.ts / archiveLogic.ts
+└── utils/
+    ├── propertyBuilder.ts    # Notion 속성 빌더
+    ├── propertyParser.ts     # 응답 파서
+    ├── responseFormatter.ts  # 마크다운 포매터
+    └── markdownToBlocks.ts   # MD ↔ Notion 블록
 ```
 
-## Claude Desktop 설정
+## HTTP 엔드포인트
 
-`claude_desktop_config.json`에 다음을 추가하세요:
+| 메서드 | 경로 | 설명 |
+|--------|------|------|
+| POST | `/mcp` | MCP 요청 처리 |
+| GET | `/mcp` | SSE 스트림 연결 |
+| DELETE | `/mcp` | 세션 종료 |
+| GET | `/health` | 헬스 체크 |
 
-```json
-{
-  "mcpServers": {
-    "mcp-boilerplate": {
-      "command": "node",
-      "args": ["/path/to/mcp-boilerplate/dist/stdio.js"]
-    }
-  }
-}
-```
+## Notion 데이터베이스 스키마
 
-또는 개발 모드:
+### MKL작업
 
-```json
-{
-  "mcpServers": {
-    "mcp-boilerplate": {
-      "command": "npx",
-      "args": ["tsx", "/path/to/mcp-boilerplate/src/stdio.ts"]
-    }
-  }
-}
-```
+| 속성 | 타입 | 설명 |
+|------|------|------|
+| 이름 | title | 작업 제목 |
+| 상태 | select | 대기중/진행중/완료/보류 |
+| 우선순위 | select | 높음/중간/낮음 |
+| 담당자(정) | people | 주 담당자 |
+| 담당자(부) | people | 부 담당자 |
+| 스프린트 | relation | 스프린트 연결 |
+| 마감일 | date | 마감일 |
+| 예상 시간 | number | 예상 시간 (시간) |
 
-## 포함된 예제
+### 스프린트
 
-### 도구 (Tools)
-
-| 도구 | 설명 |
-|------|------|
-| `greet` | 이름을 입력받아 인사말 반환 |
-| `multi-greet` | 여러 번 인사 (스트리밍 예제) |
-| `add` | 덧셈 |
-| `subtract` | 뺄셈 |
-| `multiply` | 곱셈 |
-| `divide` | 나눗셈 (0 나누기 에러 처리) |
-| `calculate` | 복합 계산 |
-
-### 리소스 (Resources)
-
-| URI | 설명 |
-|-----|------|
-| `greeting://default` | 기본 인사말 |
-| `config://server` | 서버 설정 정보 (JSON) |
-| `help://getting-started` | 시작 가이드 (Markdown) |
-| `user://{userId}/profile` | 사용자 프로필 (동적 템플릿) |
-
-### 프롬프트 (Prompts)
-
-| 프롬프트 | 설명 |
-|----------|------|
-| `greeting-template` | 인사말 생성 템플릿 |
-| `summarize-template` | 텍스트 요약 템플릿 |
-| `code-review-template` | 코드 리뷰 템플릿 |
-| `translate-template` | 번역 템플릿 |
-
-## HTTP 서버 사용
-
-HTTP 서버로 실행하면 원격에서 MCP 클라이언트가 연결할 수 있습니다:
-
-```bash
-# 서버 시작
-npm run dev:http
-
-# 또는 환경 변수로 포트 지정
-PORT=8080 npm run dev:http
-```
-
-### 엔드포인트
-
-- `POST /mcp` - MCP 요청 처리
-- `GET /mcp` - SSE 스트림 연결
-- `DELETE /mcp` - 세션 종료
-- `GET /health` - 헬스 체크
-
-## 새 도구 추가하기
-
-1. `src/tools/` 폴더에 새 파일 생성:
-
-```typescript
-// src/tools/my-tool.ts
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { z } from "zod";
-
-export function registerMyTools(server: McpServer): void {
-  server.registerTool(
-    "my-tool",
-    {
-      description: "도구 설명",
-      inputSchema: z.object({
-        param: z.string().describe("파라미터 설명"),
-      }),
-    },
-    async ({ param }) => ({
-      content: [{ type: "text", text: `결과: ${param}` }],
-    })
-  );
-}
-```
-
-2. `src/tools/index.ts`에 등록:
-
-```typescript
-import { registerMyTools } from "./my-tool.js";
-
-export function registerAllTools(server: McpServer): void {
-  // ... 기존 등록
-  registerMyTools(server);
-}
-```
+| 속성 | 타입 | 설명 |
+|------|------|------|
+| 이름 | title | "스프린트 {번호}" 형식 |
 
 ## 참고 자료
 
 - [MCP 공식 문서](https://modelcontextprotocol.io)
-- [TypeScript SDK GitHub](https://github.com/modelcontextprotocol/typescript-sdk)
-- [MCP Inspector](https://github.com/modelcontextprotocol/inspector)
+- [Notion API 문서](https://developers.notion.com)
+- [@tryfabric/martian](https://github.com/tryfabric/martian) - 마크다운 변환
 
 ## 라이선스
 
