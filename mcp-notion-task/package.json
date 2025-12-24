@@ -1,0 +1,50 @@
+{
+  "name": "mcp-notion-task",
+  "version": "1.0.0",
+  "description": "Notion MKL작업 데이터베이스 CRUD MCP 서버",
+  "type": "module",
+  "main": "dist/stdio.js",
+  "bin": {
+    "mcp-notion-task": "dist/stdio.js"
+  },
+  "scripts": {
+    "dev": "tsx src/stdio.ts",
+    "dev:http": "tsx watch src/http.ts",
+    "build": "tsc",
+    "start": "node dist/stdio.js",
+    "start:http": "node dist/http.js",
+    "inspector": "npx @modelcontextprotocol/inspector tsx src/stdio.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "notion",
+    "task-management",
+    "typescript"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "@notionhq/client": "^2.2.0",
+    "@tryfabric/martian": "^1.2.0",
+    "express": "^4.21.0",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.0.0",
+    "@vitest/ui": "^2.0.0",
+    "dotenv": "^16.4.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0",
+    "vitest": "^2.0.0"
+  }
+}
