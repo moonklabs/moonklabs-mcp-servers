@@ -5,6 +5,7 @@
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
+import { add, subtract, multiply, divide, calculate } from "./calculatorLogic.js";
 
 /**
  * 계산기 도구들을 서버에 등록합니다.
@@ -25,7 +26,7 @@ export function registerCalculatorTools(server: McpServer): void {
       content: [
         {
           type: "text",
-          text: `${a} + ${b} = ${a + b}`,
+          text: `${a} + ${b} = ${add(a, b)}`,
         },
       ],
     })
@@ -45,7 +46,7 @@ export function registerCalculatorTools(server: McpServer): void {
       content: [
         {
           type: "text",
-          text: `${a} - ${b} = ${a - b}`,
+          text: `${a} - ${b} = ${subtract(a, b)}`,
         },
       ],
     })
@@ -65,7 +66,7 @@ export function registerCalculatorTools(server: McpServer): void {
       content: [
         {
           type: "text",
-          text: `${a} × ${b} = ${a * b}`,
+          text: `${a} × ${b} = ${multiply(a, b)}`,
         },
       ],
     })
@@ -82,26 +83,27 @@ export function registerCalculatorTools(server: McpServer): void {
       }),
     },
     async ({ a, b }) => {
-      if (b === 0) {
+      try {
+        const result = divide(a, b);
         return {
           content: [
             {
               type: "text",
-              text: "오류: 0으로 나눌 수 없습니다.",
+              text: `${a} ÷ ${b} = ${result}`,
+            },
+          ],
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `오류: ${error instanceof Error ? error.message : '계산 오류'}`,
             },
           ],
           isError: true,
         };
       }
-
-      return {
-        content: [
-          {
-            type: "text",
-            text: `${a} ÷ ${b} = ${a / b}`,
-          },
-        ],
-      };
     }
   );
 
@@ -117,42 +119,35 @@ export function registerCalculatorTools(server: McpServer): void {
       }),
     },
     async ({ a, operator, b }) => {
-      let result: number;
-      let symbol: string;
+      try {
+        const result = calculate(a, operator, b);
 
-      switch (operator) {
-        case "+":
-          result = a + b;
-          symbol = "+";
-          break;
-        case "-":
-          result = a - b;
-          symbol = "-";
-          break;
-        case "*":
-          result = a * b;
-          symbol = "×";
-          break;
-        case "/":
-          if (b === 0) {
-            return {
-              content: [{ type: "text", text: "오류: 0으로 나눌 수 없습니다." }],
-              isError: true,
-            };
-          }
-          result = a / b;
-          symbol = "÷";
-          break;
+        const symbols: Record<string, string> = {
+          "+": "+",
+          "-": "-",
+          "*": "×",
+          "/": "÷",
+        };
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: `${a} ${symbols[operator]} ${b} = ${result}`,
+            },
+          ],
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `오류: ${error instanceof Error ? error.message : '계산 오류'}`,
+            },
+          ],
+          isError: true,
+        };
       }
-
-      return {
-        content: [
-          {
-            type: "text",
-            text: `${a} ${symbol} ${b} = ${result}`,
-          },
-        ],
-      };
     }
   );
 }

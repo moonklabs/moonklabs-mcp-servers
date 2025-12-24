@@ -5,6 +5,7 @@
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
+import { createGreetMessage, createMultiGreetMessages } from "./greetLogic.js";
 
 /**
  * 인사 도구들을 서버에 등록합니다.
@@ -24,7 +25,7 @@ export function registerGreetTools(server: McpServer): void {
       content: [
         {
           type: "text",
-          text: `안녕하세요, ${name}님! 반갑습니다.`,
+          text: createGreetMessage(name),
         },
       ],
     })
@@ -41,18 +42,7 @@ export function registerGreetTools(server: McpServer): void {
       }),
     },
     async ({ name, count }) => {
-      const greetings: string[] = [];
-      const messages = [
-        `${name}님, 안녕하세요!`,
-        `${name}님, 오늘 하루도 좋은 하루 되세요!`,
-        `${name}님, 만나서 반갑습니다!`,
-        `${name}님, 항상 건강하세요!`,
-        `${name}님, 좋은 일만 가득하길 바랍니다!`,
-      ];
-
-      for (let i = 0; i < count; i++) {
-        greetings.push(`${i + 1}. ${messages[i % messages.length]}`);
-      }
+      const greetings = createMultiGreetMessages(name, count);
 
       return {
         content: [
