@@ -8,7 +8,7 @@ import {
   createGreetingPrompt,
   createSummarizePrompt,
   createCodeReviewPrompt,
-} from './promptLogic.js';
+} from '../promptLogic.js';
 
 describe('Prompt Template Logic Functions', () => {
   describe('createGreetingPrompt', () => {

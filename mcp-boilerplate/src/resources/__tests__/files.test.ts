@@ -8,7 +8,7 @@ import {
   getGreetingResource,
   getConfigResource,
   getUserProfileResource,
-} from './resourceLogic.js';
+} from '../resourceLogic.js';
 
 describe('Resource Logic Functions', () => {
   describe('getGreetingResource', () => {

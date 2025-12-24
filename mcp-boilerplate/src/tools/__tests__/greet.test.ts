@@ -7,7 +7,7 @@ import { describe, it, expect } from 'vitest';
 import {
   createGreetMessage,
   createMultiGreetMessages,
-} from './greetLogic.js';
+} from '../greetLogic.js';
 
 describe('Greet Logic Functions', () => {
   describe('createGreetMessage', () => {

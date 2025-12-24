@@ -10,7 +10,7 @@ import {
   multiply,
   divide,
   calculate,
-} from './calculatorLogic.js';
+} from '../calculatorLogic.js';
 
 describe('Calculator Logic Functions', () => {
   describe('add', () => {
