@@ -1,0 +1,49 @@
+{
+  "workflow_version": "1.2.0",
+  "timestamps": {
+    "started": "2025-12-25T21:10:00Z",
+    "last_updated": "2025-12-25T21:15:00Z"
+  },
+  "mode": "initial_scan",
+  "scan_level": "quick",
+  "project_root": "/workspace/moonklabs-mcp-servers",
+  "output_folder": "/workspace/moonklabs-mcp-servers/docs",
+  "repository_type": "monorepo",
+  "project_types": [
+    {
+      "part_id": "mcp-boilerplate",
+      "project_type_id": "library",
+      "display_name": "MCP Server Boilerplate",
+      "root_path": "/workspace/moonklabs-mcp-servers/mcp-boilerplate"
+    },
+    {
+      "part_id": "mcp-notion-task",
+      "project_type_id": "library",
+      "display_name": "Notion MKL Task MCP Server",
+      "root_path": "/workspace/moonklabs-mcp-servers/mcp-notion-task"
+    }
+  ],
+  "completed_steps": [
+    {"step": "step_1", "status": "completed", "timestamp": "2025-12-25T21:10:00Z", "summary": "Classified as monorepo with 2 parts"},
+    {"step": "step_2", "status": "completed", "timestamp": "2025-12-25T21:11:00Z", "summary": "Found 7 existing docs"},
+    {"step": "step_3", "status": "completed", "timestamp": "2025-12-25T21:12:00Z", "summary": "Tech stack: TypeScript/Node.js/Express"},
+    {"step": "step_4", "status": "skipped", "timestamp": "2025-12-25T21:12:00Z", "summary": "Library type - no conditional scans needed"},
+    {"step": "step_5", "status": "completed", "timestamp": "2025-12-25T21:13:00Z", "summary": "Source tree documented"},
+    {"step": "step_6-9", "status": "completed", "timestamp": "2025-12-25T21:14:00Z", "summary": "Generated 3 documents"},
+    {"step": "step_10", "status": "completed", "timestamp": "2025-12-25T21:15:00Z", "summary": "Master index generated"}
+  ],
+  "current_step": "completed",
+  "findings": {
+    "project_classification": "monorepo, 2 parts, TypeScript/Node.js",
+    "existing_docs_count": 7,
+    "technology_stack": "TypeScript 5.7+, Node.js 20+, Express 4.21, MCP SDK 1.0"
+  },
+  "outputs_generated": [
+    "project-scan-report.json",
+    "project-overview.md",
+    "source-tree-analysis.md",
+    "development-guide.md",
+    "index.md"
+  ],
+  "resume_instructions": "Documentation complete - proceed to validation"
+}
