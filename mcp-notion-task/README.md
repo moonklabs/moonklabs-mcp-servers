@@ -95,10 +95,30 @@ npm test
 ```bash
 # 서버 시작
 npm run start:http
+```
 
-# Docker
+### Docker 배포
+
+```bash
+# 이미지 빌드
 docker build -t mcp-notion-task .
-docker run -p 3000:3000 --env-file .env mcp-notion-task
+
+# 컨테이너 실행
+docker run -d -p 3000:3000 \
+  -e NOTION_API_TOKEN=secret_xxx \
+  -e TASK_DATABASE_ID=xxx \
+  -e SPRINT_DATABASE_ID=xxx \
+  --name mcp-notion-task \
+  mcp-notion-task
+
+# 또는 docker-compose 사용 (.env 파일 필요)
+docker compose up -d
+
+# 헬스체크
+curl http://localhost:3000/health
+
+# 로그 확인
+docker logs mcp-notion-task
 ```
 
 ### 도구 호출 예시
