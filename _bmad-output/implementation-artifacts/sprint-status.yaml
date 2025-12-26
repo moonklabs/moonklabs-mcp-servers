@@ -1,0 +1,107 @@
+# Sprint Status for moonklabs-mcp-servers
+# generated: 2025-12-26
+# project: moonklabs-mcp-servers
+# tracking_system: file-system
+# story_location: _bmad-output/implementation-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - SM typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+
+generated: 2025-12-26
+project: moonklabs-mcp-servers
+tracking_system: file-system
+story_location: _bmad-output/implementation-artifacts
+
+development_status:
+  # ============================================
+  # Epic 1: Common Infrastructure (packages/common)
+  # Phase 1.0 - 기반 인프라 (가장 먼저 구현)
+  # ============================================
+  epic-1: backlog
+  1-1-packages-common-project-setup: backlog
+  1-2-common-types: backlog
+  1-3-error-response-helper: backlog
+  1-4-config-management: backlog
+  1-5-logging-system: backlog
+  1-6-caching-layer: backlog
+  1-7-metrics-collection: backlog
+  1-8-testing-utilities: backlog
+  1-9-root-workspace-setup: backlog
+  epic-1-retrospective: optional
+
+  # ============================================
+  # Epic 2: mcp-context-loader 구현
+  # Phase 1.1 - Epic 3과 병렬 개발 가능
+  # ============================================
+  epic-2: backlog
+  2-1-mcp-context-loader-project-setup: backlog
+  2-2-count-tokens-tool: backlog
+  2-3-load-context-tool: backlog
+  2-4a-get-story-context-parsing: backlog
+  2-4b-get-story-context-linking: backlog
+  2-4c-get-story-context-formatting: backlog
+  2-5-list-document-types-tool: backlog
+  2-6-mcp-context-loader-integration-test: backlog
+  epic-2-retrospective: optional
+
+  # ============================================
+  # Epic 3: mcp-spec-reader 구현
+  # Phase 1.2 - Epic 2와 병렬 개발 가능
+  # ============================================
+  epic-3: backlog
+  3-1-mcp-spec-reader-project-setup: backlog
+  3-2-list-specs-tool: backlog
+  3-3-read-spec-tool: backlog
+  3-4-summarize-spec-tool: backlog
+  3-5-get-spec-section-tool: backlog
+  3-6-mcp-spec-reader-integration-test: backlog
+  epic-3-retrospective: optional
+
+  # ============================================
+  # Epic 4: mcp-slack-bugfix 구현
+  # Phase 2.0 - Slack API 변경 대비
+  # ============================================
+  epic-4: backlog
+  4-1-mcp-slack-bugfix-project-setup: backlog
+  4-2-watch-errors-tool: backlog
+  4-3-analyze-error-tool: backlog
+  4-4-auto-fix-tool: backlog
+  4-5-create-pr-tool: backlog
+  4-6-mcp-slack-bugfix-integration-test: backlog
+  epic-4-retrospective: optional
+
+  # ============================================
+  # Epic 5: Infrastructure Enhancement
+  # Phase 1.5 - MVP 이후
+  # ============================================
+  epic-5: backlog
+  5-1-rate-limiting: backlog
+  5-2-cache-invalidation-tool: backlog
+  5-3-feedback-system-enhancement: backlog
+  epic-5-retrospective: optional
