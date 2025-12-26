@@ -86,7 +86,8 @@ workflow_status:
 
 # Next action
 next:
-  workflow: "create-story"
-  agent: "sm"
-  command: "/bmad:bmm:workflows:create-story"
-  description: "Create Story 1.1 (packages/common project setup) for first implementation"
+  workflow: "dev-story"
+  agent: "dev"
+  command: "/bmad:bmm:workflows:dev-story"
+  description: "Implement Story 1.1 (packages/common project setup)"
+  story_file: "_bmad-output/implementation-artifacts/stories/story-1.1.md"

@@ -43,16 +43,16 @@ development_status:
   # Epic 1: Common Infrastructure (packages/common)
   # Phase 1.0 - 기반 인프라 (가장 먼저 구현)
   # ============================================
-  epic-1: backlog
-  1-1-packages-common-project-setup: backlog
-  1-2-common-types: backlog
-  1-3-error-response-helper: backlog
-  1-4-config-management: backlog
-  1-5-logging-system: backlog
-  1-6-caching-layer: backlog
-  1-7-metrics-collection: backlog
-  1-8-testing-utilities: backlog
-  1-9-root-workspace-setup: backlog
+  epic-1: done
+  1-1-packages-common-project-setup: done
+  1-2-common-types: done
+  1-3-error-response-helper: done
+  1-4-config-management: done
+  1-5-logging-system: done
+  1-6-caching-layer: done
+  1-7-metrics-collection: done
+  1-8-testing-utilities: done
+  1-9-root-workspace-setup: done
   epic-1-retrospective: optional
 
   # ============================================
