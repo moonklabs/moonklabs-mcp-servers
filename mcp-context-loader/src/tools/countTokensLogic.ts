@@ -39,10 +39,10 @@ export interface CountTokensResult {
  *
  * | 모델 | 인코딩 |
  * |------|--------|
- * | gpt-4, gpt-4-turbo | cl100k_base |
+ * | gpt-4 | cl100k_base |
  * | gpt-3.5-turbo | cl100k_base |
- * | claude-* | cl100k_base (호환) |
  * | gpt-4o | o200k_base |
+ * | claude | cl100k_base (호환) |
  */
 const MODEL_ENCODING_MAP: Record<SupportedModel, "cl100k_base" | "o200k_base"> = {
   "gpt-4": "cl100k_base",
