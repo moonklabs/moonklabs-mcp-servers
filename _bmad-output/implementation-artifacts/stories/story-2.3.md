@@ -154,9 +154,20 @@ import crypto from "crypto";
 
 const cache = new CacheManager({ stdTTL: 300 }); // 5분
 
-function hashDocTypes(types: string[]): string {
-  return crypto.createHash("md5").update(types.sort().join(",")).digest("hex").slice(0, 8);
+// 모든 파라미터를 캐시 키에 포함 (코드 리뷰 반영)
+function hashCacheKey(types: string[], epicNum?: number, storyId?: string): string {
+  const parts = [
+    [...types].sort().join(","),
+    epicNum?.toString() ?? "",
+    storyId ?? "",
+  ];
+  return crypto.createHash("md5").update(parts.join("|")).digest("hex").slice(0, 8);
 }
+
+// CacheManager.getOrSet() 사용 (AC #5)
+const wasCached = cache.has(cacheKey);
+const loadResult = await cache.getOrSet(cacheKey, async () => loadContext(...), CACHE_TTL);
+const result = { ...loadResult, cached: wasCached };
 
 // 캐시 키 형식: context-loader:load-context:{hash}
 // 예: context-loader:load-context:a1b2c3d4
@@ -277,7 +288,10 @@ mcp-context-loader/
 ```json
 {
   "dependencies": {
-    "glob": "^11.0.0"  // 파일 패턴 매칭용 (또는 fast-glob)
+    "glob": "^13.0.0"  // 파일 패턴 매칭용
+  },
+  "devDependencies": {
+    "@types/glob": "^8.1.0"
   }
 }
 ```
@@ -326,11 +340,12 @@ claude-opus-4-5-20251101
 
 1. **3계층 분리 패턴 적용**: loadContextLogic.ts(순수 로직) + loadContext.ts(MCP 등록)
 2. **TDD 접근**: 21개 테스트 먼저 작성 후 구현, 모두 통과
-3. **glob 라이브러리**: glob v11+ 사용 (@types/glob 포함)
-4. **캐싱 전략**: MD5 해시 기반 캐시 키, 300초 TTL
+3. **glob 라이브러리**: glob v13+ 사용 (@types/glob 포함)
+4. **캐싱 전략**: CacheManager.getOrSet() 사용, hashCacheKey()로 모든 파라미터 포함
 5. **에러 처리**: createMcpError로 일관된 에러 응답
 6. **logger.warn**: 지원하지 않는 문서 유형 경고 로그
 7. **통합 loadDocumentContent()**: 개별 로더 대신 DOCUMENT_PATTERNS 맵 + 통합 함수로 단순화
+8. **glob ignore 옵션**: node_modules, dist, .git 디렉토리 제외
 
 ### File List
 
