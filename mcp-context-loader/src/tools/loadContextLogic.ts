@@ -90,8 +90,11 @@ export async function loadDocumentContent(
   const fullPattern = `${basePath}/${pattern}`;
 
   try {
-    // glob으로 파일 찾기
-    const files = await glob(fullPattern, { nodir: true });
+    // glob으로 파일 찾기 (node_modules 등 불필요한 디렉토리 제외)
+    const files = await glob(fullPattern, {
+      nodir: true,
+      ignore: ["**/node_modules/**", "**/dist/**", "**/.git/**"],
+    });
 
     if (files.length === 0) {
       return "";

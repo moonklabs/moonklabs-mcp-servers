@@ -24,14 +24,28 @@ const CACHE_TTL = 300;
 const cache = new CacheManager({ stdTTL: CACHE_TTL });
 
 /**
- * document_types 배열을 해시하여 캐시 키로 사용합니다.
+ * 캐시 키 생성에 사용할 파라미터를 해시합니다.
  *
  * @param types - 문서 유형 배열
+ * @param epicNum - Epic 번호 (선택)
+ * @param storyId - 스토리 ID (선택)
  * @returns 해시 문자열 (8자)
  */
-function hashDocTypes(types: string[]): string {
-  const sorted = [...types].sort().join(",");
-  return crypto.createHash("md5").update(sorted).digest("hex").slice(0, 8);
+function hashCacheKey(
+  types: string[],
+  epicNum?: number,
+  storyId?: string
+): string {
+  const parts = [
+    [...types].sort().join(","),
+    epicNum?.toString() ?? "",
+    storyId ?? "",
+  ];
+  return crypto
+    .createHash("md5")
+    .update(parts.join("|"))
+    .digest("hex")
+    .slice(0, 8);
 }
 
 /**
@@ -88,29 +102,25 @@ export function registerLoadContextTool(server: McpServer): void {
       }
 
       try {
-        // 캐시 키 생성
-        const cacheKey = `context-loader:load-context:${hashDocTypes(document_types)}`;
+        // 캐시 키 생성 (epic_num, story_id 포함)
+        const cacheKey = `context-loader:load-context:${hashCacheKey(document_types, epic_num, story_id)}`;
 
-        // 캐시된 결과 또는 새로 로드
-        const cached = cache.get<LoadContextResult & { cached: boolean }>(
-          cacheKey
+        // 캐시 히트 여부 확인 (getOrSet 호출 전에 판단)
+        const wasCached = cache.has(cacheKey);
+
+        // CacheManager.getOrSet() 사용 (AC #5)
+        const loadResult = await cache.getOrSet(
+          cacheKey,
+          async () =>
+            loadContext(document_types, {
+              epicNum: epic_num,
+              storyId: story_id,
+            }),
+          CACHE_TTL
         );
-        let result: LoadContextResult & { cached: boolean };
 
-        if (cached !== undefined) {
-          result = { ...cached, cached: true };
-        } else {
-          // 새로 로드
-          const loadResult = await loadContext(document_types, {
-            epicNum: epic_num,
-            storyId: story_id,
-          });
-
-          result = { ...loadResult, cached: false };
-
-          // 캐시에 저장 (cached: false 상태로)
-          cache.set(cacheKey, { ...loadResult, cached: false }, CACHE_TTL);
-        }
+        // cached 플래그 추가
+        const result = { ...loadResult, cached: wasCached };
 
         // 지원하지 않는 타입 경고 로그
         if (result.ignored_types.length > 0) {

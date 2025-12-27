@@ -4,7 +4,7 @@
  * @module tools/__tests__/loadContext.test
  */
 
-import { describe, it, expect, beforeEach, vi, type Mock } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import fs from "fs/promises";
 import { glob } from "glob";
 
@@ -18,8 +18,6 @@ import {
   isSupportedDocumentType,
   loadDocumentContent,
   loadContext,
-  type LoadContextResult,
-  type LoadContextOptions,
 } from "../loadContextLogic.js";
 
 describe("loadContextLogic", () => {
