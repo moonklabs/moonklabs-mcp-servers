@@ -59,9 +59,9 @@ development_status:
   # Epic 2: mcp-context-loader 구현
   # Phase 1.1 - Epic 3과 병렬 개발 가능
   # ============================================
-  epic-2: backlog
-  2-1-mcp-context-loader-project-setup: backlog
-  2-2-count-tokens-tool: backlog
+  epic-2: in-progress
+  2-1-mcp-context-loader-project-setup: done
+  2-2-count-tokens-tool: done
   2-3-load-context-tool: backlog
   2-4a-get-story-context-parsing: backlog
   2-4b-get-story-context-linking: backlog
