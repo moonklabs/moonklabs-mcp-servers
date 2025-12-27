@@ -269,6 +269,7 @@ claude-opus-4-5-20251101
 **수정된 파일:**
 - mcp-context-loader/src/tools/index.ts (registerCountTokensTool 등록)
 - mcp-context-loader/package.json (js-tiktoken, zod@4 의존성 추가)
+- mcp-context-loader/src/tools/countTokensLogic.ts (2차 리뷰: 주석 테이블 수정)
 
 **삭제된 파일:**
 - mcp-context-loader/src/tools/__tests__/.gitkeep
@@ -283,8 +284,8 @@ claude-opus-4-5-20251101
 
 | Severity | Issue | Resolution |
 |----------|-------|------------|
-| HIGH | Task 6 MCP Inspector 미체크 | 수동 검증 필요로 명시됨, 허용 |
-| HIGH | Git 미커밋 상태 | 커밋 권장 (사용자 결정) |
+| HIGH | Task 6 MCP Inspector 미체크 | 수동 검증 필요로 명시됨, 허용 → 2차 리뷰에서 체크박스 수정 |
+| HIGH | Git 미커밋 상태 | ✅ 커밋 완료 (9e71ae2) |
 | MEDIUM | AC #2 gpt-4o 누락 | AC 업데이트 완료 |
 | MEDIUM | countTokens.ts 예외 처리 누락 | try-catch 추가 완료 |
 | MEDIUM | toMcpToolResult 테스트 불일치 | 분석 결과 문제 없음 (통합 테스트) |
