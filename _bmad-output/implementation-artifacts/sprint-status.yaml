@@ -62,7 +62,7 @@ development_status:
   epic-2: in-progress
   2-1-mcp-context-loader-project-setup: done
   2-2-count-tokens-tool: done
-  2-3-load-context-tool: ready-for-dev
+  2-3-load-context-tool: review
   2-4a-get-story-context-parsing: backlog
   2-4b-get-story-context-linking: backlog
   2-4c-get-story-context-formatting: backlog

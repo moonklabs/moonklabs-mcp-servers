@@ -36,11 +36,13 @@
     "@modelcontextprotocol/sdk": "^1.0.0",
     "@moonklabs/mcp-common": "*",
     "express": "^4.21.0",
+    "glob": "^13.0.0",
     "js-tiktoken": "^1.0.21",
     "zod": "^4.2.1"
   },
   "devDependencies": {
     "@types/express": "^5.0.0",
+    "@types/glob": "^8.1.0",
     "@types/node": "^22.0.0",
     "@vitest/ui": "^2.0.0",
     "tsx": "^4.19.0",
