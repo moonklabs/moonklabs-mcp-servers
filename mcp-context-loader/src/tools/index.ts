@@ -28,6 +28,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { registerCountTokensTool } from "./countTokens.js";
 import { registerLoadContextTool } from "./loadContext.js";
 import { registerGetStoryContextTool } from "./getStoryContext.js";
+import { registerListDocumentTypesTool } from "./listDocumentTypes.js";
 
 /**
  * 모든 도구를 서버에 등록합니다.
@@ -39,4 +40,5 @@ export function registerAllTools(server: McpServer): void {
   registerCountTokensTool(server);
   registerLoadContextTool(server);
   registerGetStoryContextTool(server);
+  registerListDocumentTypesTool(server);
 }

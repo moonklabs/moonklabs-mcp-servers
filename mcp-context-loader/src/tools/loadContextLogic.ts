@@ -54,8 +54,11 @@ export interface LoadContextOptions {
 
 /**
  * 문서 유형별 glob 패턴 매핑
+ *
+ * @remarks
+ * 이 상수는 listDocumentTypesLogic.ts에서도 재사용됩니다.
  */
-const DOCUMENT_PATTERNS: Record<DocumentType, string> = {
+export const DOCUMENT_PATTERNS: Record<DocumentType, string> = {
   prd: "_bmad-output/*prd*.md",
   architecture: "_bmad-output/*architecture*.md",
   epic: "_bmad-output/epics.md",
