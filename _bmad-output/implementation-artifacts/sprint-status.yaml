@@ -63,9 +63,9 @@ development_status:
   2-1-mcp-context-loader-project-setup: done
   2-2-count-tokens-tool: done
   2-3-load-context-tool: done
-  2-4a-get-story-context-parsing: backlog
-  2-4b-get-story-context-linking: backlog
-  2-4c-get-story-context-formatting: backlog
+  2-4a-get-story-context-parsing: done
+  2-4b-get-story-context-linking: done
+  2-4c-get-story-context-formatting: done
   2-5-list-document-types-tool: backlog
   2-6-mcp-context-loader-integration-test: backlog
   epic-2-retrospective: optional
