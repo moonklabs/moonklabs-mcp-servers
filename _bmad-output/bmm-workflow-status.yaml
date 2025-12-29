@@ -67,9 +67,10 @@ workflow_status:
       command: "create-epics-and-stories"
       note: "Completed - 5 Epics, 32 Stories, 4 Party Mode rounds, 100% FR coverage"
     test-design:
-      status: "recommended"
+      status: "_bmad-output/test-design-epic-1.md, _bmad-output/test-design-epic-2.md"
       agent: "tea"
       command: "testarch-test-design"
+      note: "Completed - Epic 1 (retrospective) + Epic 2 test designs, 111 total tests planned"
     implementation-readiness:
       status: "_bmad-output/project-planning-artifacts/implementation-readiness-report-2025-12-26.md"
       agent: "architect"
@@ -89,5 +90,6 @@ next:
   workflow: "dev-story"
   agent: "dev"
   command: "/bmad:bmm:workflows:dev-story"
-  description: "Implement Story 1.1 (packages/common project setup)"
-  story_file: "_bmad-output/implementation-artifacts/stories/story-1.1.md"
+  description: "Implement Story 2.6 (mcp-context-loader integration test)"
+  story_file: "_bmad-output/implementation-artifacts/stories/story-2-6-mcp-context-loader-integration-test.md"
+  note: "Epic 1 done, Epic 2 in-progress (6/7 stories done)"
