@@ -6,10 +6,10 @@
 
 | 도구 | 설명 | 상태 |
 |------|------|------|
-| `count-tokens` | 텍스트의 토큰 수 계산 | 예정 (Story 2.2) |
-| `load-context` | 여러 문서 유형 통합 로드 | 예정 (Story 2.3) |
-| `get-story-context` | 스토리별 컨텍스트 로드 | 예정 (Story 2.4) |
-| `list-document-types` | 로드 가능한 문서 유형 목록 | 예정 (Story 2.5) |
+| `count-tokens` | 텍스트의 토큰 수 계산 (gpt-4, gpt-3.5-turbo, gpt-4o, claude 지원) | ✅ 완료 |
+| `load-context` | 여러 문서 유형 통합 로드 | ✅ 완료 |
+| `get-story-context` | 스토리별 컨텍스트 로드 (Epic, Architecture 연결) | ✅ 완료 |
+| `list-document-types` | 로드 가능한 문서 유형 목록 | ✅ 완료 |
 
 ## 설치
 
@@ -105,6 +105,93 @@ docker run -p 3001:3001 \
 
 # 헬스 체크
 curl http://localhost:3001/health
+```
+
+## 테스트
+
+### 자동화 테스트
+
+```bash
+# 전체 테스트 실행
+npm test -w mcp-context-loader
+
+# 타입 검사
+npm run typecheck -w mcp-context-loader
+
+# 특정 테스트 실행
+npx vitest run src/tools/__tests__/countTokens.test.ts
+npx vitest run tests/integration/
+```
+
+### 테스트 구조
+
+```
+tests/
+├── fixtures/               # 테스트용 샘플 파일
+│   ├── sample-story.md
+│   ├── sample-epics.md
+│   └── sample-prd.md
+└── integration/            # 통합 테스트
+    ├── helpers/
+    │   └── testSetup.ts    # 테스트 환경 설정
+    ├── mcp-protocol.test.ts    # MCP 프로토콜 테스트
+    └── workflow-scenarios.test.ts  # 워크플로우 시나리오
+```
+
+### MCP Inspector 수동 테스트
+
+MCP Inspector를 사용하여 도구를 테스트할 수 있습니다:
+
+```bash
+# MCP Inspector 실행
+npm run inspector -w mcp-context-loader
+```
+
+브라우저에서 `http://localhost:5173` 접속 후 다음 테스트를 수행:
+
+#### 1. count-tokens 테스트
+```json
+{
+  "text": "Hello, World! This is a test.",
+  "model": "gpt-4"
+}
+```
+예상 결과: `{ "token_count": 9, "model": "gpt-4" }`
+
+#### 2. list-document-types 테스트
+파라미터 없이 호출
+예상 결과: 6개 문서 유형 목록 (prd, architecture, epic, story, project-context, brainstorming)
+
+#### 3. load-context 테스트
+```json
+{
+  "document_types": ["prd", "architecture"]
+}
+```
+예상 결과: 요청한 문서들의 내용과 총 토큰 수
+
+#### 4. get-story-context 테스트
+```json
+{
+  "story_id": "2.1"
+}
+```
+예상 결과: 스토리의 AC, Tasks, 연결된 문서 정보
+
+### Docker 테스트
+
+```bash
+# 빌드 (모노레포 루트에서)
+docker build -f mcp-context-loader/Dockerfile -t mcp-context-loader:test .
+
+# 실행 테스트
+docker run -d -p 3001:3001 --name mcp-test mcp-context-loader:test
+
+# 헬스 체크
+curl http://localhost:3001/health
+
+# 정리
+docker stop mcp-test && docker rm mcp-test
 ```
 
 ## 아키텍처

@@ -84,12 +84,17 @@ workflow_status:
       agent: "sm"
       command: "sprint-planning"
       note: "Completed - 5 Epics, 32 Stories, all in backlog"
+    retrospective-epic-1:
+      status: "_bmad-output/implementation-artifacts/epic-1-retrospective.md"
+      agent: "sm"
+      command: "retrospective"
+      note: "Completed - 2025-12-30, 9 stories, 400 tests, 38 review issues fixed"
 
 # Next action
 next:
   workflow: "dev-story"
   agent: "dev"
   command: "/bmad:bmm:workflows:dev-story"
-  description: "Implement Story 2.6 (mcp-context-loader integration test)"
-  story_file: "_bmad-output/implementation-artifacts/stories/story-2-6-mcp-context-loader-integration-test.md"
-  note: "Epic 1 done, Epic 2 in-progress (6/7 stories done)"
+  description: "Implement Story 3.1 (mcp-spec-reader project setup)"
+  story_file: "_bmad-output/implementation-artifacts/stories/story-3-1-mcp-spec-reader-project-setup.md"
+  note: "Epic 1 done, Epic 2 done, Epic 3 in-progress (1/6 stories ready)"
