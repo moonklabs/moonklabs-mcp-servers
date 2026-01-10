@@ -15,18 +15,20 @@ import {
   buildRichTextProperty,
   buildProperties,
 } from "../../utils/propertyBuilder.js";
+import { resolveToPageId } from "../../utils/taskIdResolver.js";
 import type { Task, UpdateTaskInput } from "../../notion/types.js";
 
 /**
  * 작업 정보를 수정합니다.
- * @param pageId 작업 페이지 ID
+ * @param id 작업 ID (MKL-123) 또는 페이지 ID (UUID)
  * @param updates 수정할 속성들
  * @returns 업데이트된 Task 객체
  */
 export async function updateTask(
-  pageId: string,
+  id: string,
   updates: UpdateTaskInput
 ): Promise<Task> {
+  const pageId = await resolveToPageId(id);
   const notion = getNotionClient();
 
   // 업데이트할 속성 빌드

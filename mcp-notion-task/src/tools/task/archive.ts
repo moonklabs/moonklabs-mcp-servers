@@ -18,12 +18,12 @@ export function registerArchiveTool(server: McpServer): void {
       description:
         "오래된 작업 정리 시. 아카이브하면 기본 목록에서 제외되지만, 복원 가능합니다.",
       inputSchema: z.object({
-        pageId: z.string().describe("아카이브할 작업 페이지 ID"),
+        id: z.string().describe("작업 ID (예: MKL-123) 또는 페이지 ID (UUID)"),
       }),
     },
-    async ({ pageId }) => {
+    async ({ id }) => {
       try {
-        await archiveTask(pageId);
+        await archiveTask(id);
 
         return {
           content: [

@@ -5,13 +5,15 @@
 
 import { getNotionClient } from "../../notion/client.js";
 import { blocksToMarkdown } from "../../utils/markdownToBlocks.js";
+import { resolveToPageId } from "../../utils/taskIdResolver.js";
 
 /**
  * 작업 페이지의 본문을 Markdown으로 조회합니다.
- * @param pageId 작업 페이지 ID
+ * @param id 작업 ID (MKL-123) 또는 페이지 ID (UUID)
  * @returns Markdown 문자열
  */
-export async function getTaskContent(pageId: string): Promise<string> {
+export async function getTaskContent(id: string): Promise<string> {
+  const pageId = await resolveToPageId(id);
   const notion = getNotionClient();
 
   // 첫 번째 레벨 블록 조회

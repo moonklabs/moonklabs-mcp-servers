@@ -18,12 +18,12 @@ export function registerGetContentTool(server: McpServer): void {
       description:
         "작업 상세 내용 확인 시. 진행 로그, 본문을 Markdown 형식으로 조회합니다.",
       inputSchema: z.object({
-        pageId: z.string().describe("작업 페이지 ID"),
+        id: z.string().describe("작업 ID (예: MKL-123) 또는 페이지 ID (UUID)"),
       }),
     },
-    async ({ pageId }) => {
+    async ({ id }) => {
       try {
-        const markdown = await getTaskContent(pageId);
+        const markdown = await getTaskContent(id);
 
         if (!markdown.trim()) {
           return {

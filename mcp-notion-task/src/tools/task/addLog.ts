@@ -20,7 +20,7 @@ export function registerAddLogTool(server: McpServer): void {
       description:
         "작업 중 진행상황 기록. 인증된 세션에서는 author 생략 가능.",
       inputSchema: z.object({
-        pageId: z.string().describe("작업 페이지 ID"),
+        id: z.string().describe("작업 ID (예: MKL-123) 또는 페이지 ID (UUID)"),
         content: z
           .string()
           .describe("로그 내용 (Markdown 형식, 예: '- API 구현 완료\\n- 테스트 작성 중')"),
@@ -36,7 +36,7 @@ export function registerAddLogTool(server: McpServer): void {
           ),
       }),
     },
-    async ({ pageId, content, author, logType }, extra) => {
+    async ({ id, content, author, logType }, extra) => {
       // 세션에서 사용자 정보 가져오기
       const sessionUser = getUserFromSession(extra?.sessionId);
 
@@ -58,7 +58,7 @@ export function registerAddLogTool(server: McpServer): void {
       }
       try {
         const result = await addTaskLogAfterChangelog(
-          pageId,
+          id,
           content,
           resolvedAuthor,
           logType as LogType

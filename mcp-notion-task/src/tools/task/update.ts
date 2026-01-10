@@ -19,7 +19,7 @@ export function registerUpdateTool(server: McpServer): void {
       description:
         "여러 속성 동시 수정 시. 제목, 상태, 마감일, 우선순위, 태그 등을 한 번에 업데이트합니다.",
       inputSchema: z.object({
-        pageId: z.string().describe("작업 페이지 ID"),
+        id: z.string().describe("작업 ID (예: MKL-123) 또는 페이지 ID (UUID)"),
         title: z.string().optional().describe("새 제목"),
         status: z
           .enum(["시작 전", "일시중지", "진행 중", "완료", "보관됨", "상담완료"])
@@ -57,7 +57,7 @@ export function registerUpdateTool(server: McpServer): void {
       }),
     },
     async ({
-      pageId,
+      id,
       title,
       status,
       issueType,
@@ -83,7 +83,7 @@ export function registerUpdateTool(server: McpServer): void {
           projectId,
         };
 
-        const task = await updateTask(pageId, updates);
+        const task = await updateTask(id, updates);
 
         return {
           content: [

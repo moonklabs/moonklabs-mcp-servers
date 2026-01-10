@@ -34,7 +34,7 @@ describe("responseFormatter 유틸리티", () => {
       const result = formatTaskDetail(sampleTask);
 
       expect(result).toContain("## 테스트 작업");
-      expect(result).toContain("| ID | `page-id-123` |");
+      expect(result).toContain("| 페이지ID | `page-id-123` |");
       expect(result).toContain("| 상태 | 진행 중 |");
       expect(result).toContain("| 담당자(정) | user@test.com |");
       expect(result).toContain("| 우선순위 | 높음 |");
@@ -90,7 +90,7 @@ describe("responseFormatter 유틸리티", () => {
 
       expect(result).toContain("### 진행 중 (1개)");
       expect(result).toContain("### 시작 전 (1개)");
-      expect(result).toContain("- [높음] 테스트 작업");
+      expect(result).toContain("[높음] 테스트 작업"); // taskId가 없으면 앞에 빈 문자열
     });
   });
 

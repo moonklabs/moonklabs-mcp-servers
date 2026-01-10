@@ -17,12 +17,12 @@ export function registerGetTool(server: McpServer): void {
     {
       description: "작업 속성 확인 시. 본문 제외, 메타데이터(상태, 우선순위 등)만 조회합니다.",
       inputSchema: z.object({
-        pageId: z.string().describe("조회할 작업의 Notion 페이지 ID"),
+        id: z.string().describe("작업 ID (예: MKL-123) 또는 페이지 ID (UUID)"),
       }),
     },
-    async ({ pageId }) => {
+    async ({ id }) => {
       try {
-        const task = await getTask(pageId);
+        const task = await getTask(id);
         const formatted = formatTaskDetail(task);
 
         return {

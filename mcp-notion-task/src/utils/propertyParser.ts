@@ -74,11 +74,21 @@ export function parseRelation(property: any): string | undefined {
 }
 
 /**
+ * Unique ID 속성에서 값 추출 (예: MKL-123)
+ */
+export function parseUniqueId(property: any): string | undefined {
+  const uid = property?.unique_id;
+  if (!uid) return undefined;
+  return uid.prefix ? `${uid.prefix}-${uid.number}` : String(uid.number);
+}
+
+/**
  * Notion 페이지를 Task 객체로 변환
  * MKL작업 데이터베이스의 속성 이름에 맞춰 파싱합니다.
  *
  * 예상 속성 이름:
- * - 이름: title
+ * - 작업 이름: title
+ * - 작업 ID: unique_id (예: MKL-123)
  * - 상태: select
  * - 담당자(정): people
  * - 담당자(부): people
@@ -96,6 +106,7 @@ export function parseTaskFromPage(page: NotionPage): Task {
 
   return {
     id: page.id,
+    taskId: parseUniqueId(props["작업 ID"]),
     title: parseTitle(props["작업 이름"]),
     status: (parseSelect(props["상태"]) || "시작 전") as TaskStatus,
     assignees: parsePeople(props["담당자"]),

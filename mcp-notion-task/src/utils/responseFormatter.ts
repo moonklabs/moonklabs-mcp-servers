@@ -11,11 +11,14 @@ import type { Task } from "../notion/types.js";
 export function formatTaskDetail(task: Task): string {
   const lines: string[] = [];
 
-  lines.push(`## ${task.title}`);
+  lines.push(`## ${task.taskId ? `[${task.taskId}] ` : ""}${task.title}`);
   lines.push("");
   lines.push(`| 속성 | 값 |`);
   lines.push(`|------|-----|`);
-  lines.push(`| ID | \`${task.id}\` |`);
+  if (task.taskId) {
+    lines.push(`| 작업ID | \`${task.taskId}\` |`);
+  }
+  lines.push(`| 페이지ID | \`${task.id}\` |`);
   lines.push(`| 상태 | ${task.status} |`);
   lines.push(`| 담당자(정) | ${task.assignees.join(", ") || "미지정"} |`);
 
@@ -65,21 +68,22 @@ export function formatTaskList(tasks: Task[]): string {
 
   lines.push(`총 ${tasks.length}개의 작업이 조회되었습니다.`);
   lines.push("");
-  lines.push(`| 상태 | 제목 | 담당자 | 우선순위 | 마감일 |`);
-  lines.push(`|------|------|--------|----------|--------|`);
+  lines.push(`| 작업ID | 상태 | 제목 | 담당자 | 우선순위 | 마감일 |`);
+  lines.push(`|--------|------|------|--------|----------|--------|`);
 
   for (const task of tasks) {
+    const taskId = task.taskId || task.id.slice(0, 8); // 작업ID 없으면 페이지ID 앞 8자
     const status = task.status;
     const title = truncate(task.title, 30);
     const assignee = task.assignees[0] || "-";
     const priority = task.priority || "-";
     const dueDate = task.dueDate || "-";
 
-    lines.push(`| ${status} | ${title} | ${assignee} | ${priority} | ${dueDate} |`);
+    lines.push(`| \`${taskId}\` | ${status} | ${title} | ${assignee} | ${priority} | ${dueDate} |`);
   }
 
   lines.push("");
-  lines.push(`_상세 조회: notion-task-get 도구를 사용하세요._`);
+  lines.push(`_💡 작업ID로 조회/수정/상태변경 가능 (페이지ID는 notion-task-get으로 확인)_`);
 
   return lines.join("\n");
 }
@@ -104,10 +108,11 @@ export function formatSprintTaskList(tasks: Task[]): string {
     lines.push(`### ${status} (${statusTasks.length}개)`);
 
     for (const task of statusTasks) {
+      const taskId = task.taskId ? `[${task.taskId}]` : "";
       const priority = task.priority ? `[${task.priority}]` : "";
       const dueDate = task.dueDate ? `~${task.dueDate}` : "";
-      lines.push(`- ${priority} ${task.title} ${dueDate}`);
-      lines.push(`  - ID: \`${task.id}\``);
+      lines.push(`- ${taskId} ${priority} ${task.title} ${dueDate}`);
+      lines.push(`  - 페이지ID: \`${task.id}\``);
     }
 
     lines.push("");

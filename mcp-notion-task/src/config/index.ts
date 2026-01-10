@@ -18,6 +18,11 @@ function optionalEnv(key: string, defaultValue: string): string {
 }
 
 /**
+ * 로그 레벨 타입
+ */
+export type LogLevel = "debug" | "info" | "warn" | "error" | "silent";
+
+/**
  * 애플리케이션 설정
  * 서버 시작 시 환경 변수를 로드하여 설정 객체 생성
  */
@@ -30,11 +35,26 @@ export interface Config {
   server: {
     port: number;
     host: string;
+    logLevel: LogLevel;
   };
   auth: {
     required: boolean;
     usersConfigured: boolean;
   };
+}
+
+/**
+ * 로그 레벨 파싱
+ */
+function parseLogLevel(value: string | undefined): LogLevel {
+  const normalized = value?.toLowerCase();
+  if (
+    normalized &&
+    ["debug", "info", "warn", "error", "silent"].includes(normalized)
+  ) {
+    return normalized as LogLevel;
+  }
+  return "info"; // 기본값
 }
 
 /**
@@ -51,6 +71,7 @@ export function loadConfig(): Config {
     server: {
       port: parseInt(optionalEnv("PORT", "3434"), 10),
       host: optionalEnv("HOST", "0.0.0.0"),
+      logLevel: parseLogLevel(process.env.LOG_LEVEL),
     },
     auth: {
       required: process.env.AUTH_REQUIRED !== "false",

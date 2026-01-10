@@ -50,7 +50,8 @@ export const LOG_TYPE_ICONS: Record<LogType, string> = {
  * 작업 엔티티 (Notion 페이지를 파싱한 결과)
  */
 export interface Task {
-  id: string;
+  id: string;                      // Notion 페이지 ID (UUID)
+  taskId?: string;                 // 작업 ID (예: MKL-123) - unique_id 속성
   title: string;
   status: TaskStatus;
   assignees: string[];           // 담당자(정) 이메일 목록

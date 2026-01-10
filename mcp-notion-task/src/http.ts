@@ -32,6 +32,10 @@ import {
   deleteAuthSession,
   isAuthRequired,
 } from "./auth/index.js";
+import { initLogger, createLogger, getLogger } from "./utils/logger.js";
+
+// 로거 인스턴스
+const log = createLogger("http");
 
 // 서버 설정
 const SERVER_NAME = "mcp-notion-task";
@@ -70,6 +74,37 @@ function createApp(): express.Application {
 
   // JSON 파싱
   app.use(express.json());
+
+  // 요청/응답 로깅 미들웨어
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    const startTime = Date.now();
+    const sessionId = req.headers["mcp-session-id"] as string | undefined;
+
+    // 요청 로깅
+    log.request(req.method, req.path, {
+      sessionId: sessionId?.slice(0, 8),
+      contentLength: req.headers["content-length"],
+    });
+
+    // DEBUG 레벨에서 요청 본문 로깅
+    if (req.body && Object.keys(req.body).length > 0) {
+      log.debug("Request body", {
+        method: req.body.method,
+        id: req.body.id,
+        params: req.body.params ? Object.keys(req.body.params) : undefined,
+      });
+    }
+
+    // 응답 완료 시 로깅
+    res.on("finish", () => {
+      const duration = Date.now() - startTime;
+      log.response(req.method, req.path, res.statusCode, duration, {
+        sessionId: sessionId?.slice(0, 8),
+      });
+    });
+
+    next();
+  });
 
   // CORS 헤더 (필요시)
   app.use((_req: Request, res: Response, next: NextFunction) => {
@@ -127,9 +162,10 @@ function createApp(): express.Application {
           setAuthSession(sessionId, authenticatedUser);
         }
 
-        console.log(
-          `New session created: ${sessionId}, user: ${authenticatedUser?.email || "anonymous"}`
-        );
+        log.info("New session created", {
+          sessionId: sessionId.slice(0, 8),
+          user: authenticatedUser?.email || "anonymous",
+        });
       }
 
       const session = sessions.get(sessionId)!;
@@ -137,7 +173,10 @@ function createApp(): express.Application {
       // 요청 처리
       await session.transport.handleRequest(req, res, req.body);
     } catch (error) {
-      console.error("POST /mcp error:", error);
+      log.error("POST /mcp error", {
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+      });
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -164,7 +203,10 @@ function createApp(): express.Application {
     try {
       await session.transport.handleRequest(req, res, undefined);
     } catch (error) {
-      console.error("GET /mcp error:", error);
+      log.error("GET /mcp error", {
+        error: error instanceof Error ? error.message : String(error),
+        sessionId: sessionId?.slice(0, 8),
+      });
       if (!res.headersSent) {
         res.status(500).json({ error: "Internal server error" });
       }
@@ -185,7 +227,7 @@ function createApp(): express.Application {
       await session.server.close();
       sessions.delete(sessionId);
       deleteAuthSession(sessionId); // 인증 정보도 삭제
-      console.log(`Session closed: ${sessionId}`);
+      log.info("Session closed", { sessionId: sessionId.slice(0, 8) });
     }
 
     res.sendStatus(204);
@@ -209,30 +251,41 @@ function createApp(): express.Application {
  */
 async function main(): Promise<void> {
   // 환경 변수 조기 검증 (필수 값 누락 시 즉시 실패)
-  getConfig();
+  const config = getConfig();
+
+  // 로거 초기화
+  initLogger(config.server.logLevel);
+  const rootLog = getLogger();
+
+  rootLog.info(`${SERVER_NAME} v${SERVER_VERSION} starting...`, {
+    logLevel: config.server.logLevel,
+  });
 
   const app = createApp();
 
   const server = app.listen(PORT, HOST, () => {
-    console.log(`${SERVER_NAME} v${SERVER_VERSION} started`);
-    console.log(`HTTP server listening on http://${HOST}:${PORT}`);
-    console.log(`MCP endpoint: http://${HOST}:${PORT}/mcp`);
-    console.log(`Health check: http://${HOST}:${PORT}/health`);
+    rootLog.info("HTTP server started", {
+      host: HOST,
+      port: PORT,
+      mcpEndpoint: `http://${HOST}:${PORT}/mcp`,
+      healthEndpoint: `http://${HOST}:${PORT}/health`,
+    });
   });
 
   // 종료 시그널 처리
   const shutdown = async () => {
-    console.log("\nShutting down...");
+    rootLog.info("Shutting down...");
 
     // 모든 세션 종료
     for (const [sessionId, session] of sessions) {
       await session.server.close();
-      console.log(`Session ${sessionId} closed`);
+      rootLog.debug("Session closed", { sessionId: sessionId.slice(0, 8) });
     }
     sessions.clear();
+    rootLog.info("All sessions closed", { count: sessions.size });
 
     server.close(() => {
-      console.log("HTTP server closed");
+      rootLog.info("HTTP server closed");
       process.exit(0);
     });
   };
@@ -243,6 +296,10 @@ async function main(): Promise<void> {
 
 // 서버 실행
 main().catch((error) => {
-  console.error("Server error:", error);
+  const rootLog = getLogger();
+  rootLog.error("Server startup failed", {
+    error: error instanceof Error ? error.message : String(error),
+    stack: error instanceof Error ? error.stack : undefined,
+  });
   process.exit(1);
 });

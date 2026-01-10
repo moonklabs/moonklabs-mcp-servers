@@ -19,15 +19,15 @@ export function registerUpdateStatusTool(server: McpServer): void {
       description:
         "작업 완료/시작 시 상태만 빠르게 변경. 다른 속성 수정은 update 사용.",
       inputSchema: z.object({
-        pageId: z.string().describe("작업 페이지 ID"),
+        id: z.string().describe("작업 ID (예: MKL-123) 또는 페이지 ID (UUID)"),
         status: z
           .enum(["시작 전", "일시중지", "진행 중", "완료", "보관됨", "상담완료"])
           .describe("새 상태"),
       }),
     },
-    async ({ pageId, status }) => {
+    async ({ id, status }) => {
       try {
-        const task = await updateTaskStatus(pageId, status as TaskStatus);
+        const task = await updateTaskStatus(id, status as TaskStatus);
 
         return {
           content: [

@@ -4,13 +4,15 @@
  */
 
 import { getNotionClient } from "../../notion/client.js";
+import { resolveToPageId } from "../../utils/taskIdResolver.js";
 
 /**
  * 작업을 아카이브합니다.
- * @param pageId 작업 페이지 ID
+ * @param id 작업 ID (MKL-123) 또는 페이지 ID (UUID)
  * @returns 성공 여부
  */
-export async function archiveTask(pageId: string): Promise<{ success: boolean }> {
+export async function archiveTask(id: string): Promise<{ success: boolean }> {
+  const pageId = await resolveToPageId(id);
   const notion = getNotionClient();
 
   await notion.pages.update({
@@ -23,10 +25,11 @@ export async function archiveTask(pageId: string): Promise<{ success: boolean }>
 
 /**
  * 아카이브된 작업을 복원합니다.
- * @param pageId 작업 페이지 ID
+ * @param id 작업 ID (MKL-123) 또는 페이지 ID (UUID)
  * @returns 성공 여부
  */
-export async function unarchiveTask(pageId: string): Promise<{ success: boolean }> {
+export async function unarchiveTask(id: string): Promise<{ success: boolean }> {
+  const pageId = await resolveToPageId(id);
   const notion = getNotionClient();
 
   await notion.pages.update({

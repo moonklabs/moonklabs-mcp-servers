@@ -121,9 +121,9 @@ describe("propertyParser 유틸리티", () => {
         created_time: "2025-01-01T00:00:00.000Z",
         last_edited_time: "2025-01-15T12:00:00.000Z",
         properties: {
-          "이름": { title: [{ text: { content: "테스트 작업" } }] },
+          "작업 이름": { title: [{ text: { content: "테스트 작업" } }] },
           "상태": { select: { name: "진행 중" } },
-          "담당자(정)": { people: [{ person: { email: "user@test.com" } }] },
+          "담당자": { people: [{ person: { email: "user@test.com" } }] },
           "담당자(부)": { people: [] },
           "우선순위": { select: { name: "높음" } },
           "마감일": { date: { start: "2025-01-20" } },
