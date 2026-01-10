@@ -9,7 +9,7 @@ MCP (Model Context Protocol) 서버 모노레포. `mcp-boilerplate`를 복사하
 | Part | 설명 |
 |------|------|
 | `mcp-boilerplate` | MCP 서버 템플릿 |
-| `mcp-notion-task` | Notion MKL작업 CRUD (9개 도구) - [상세](./mcp-notion-task/CLAUDE.md) |
+| `mcp-notion-task` | Notion MKL작업 CRUD (10개 도구) - [상세](./mcp-notion-task/CLAUDE.md) |
 
 ## 개발 명령어 (모든 Part 공통)
 

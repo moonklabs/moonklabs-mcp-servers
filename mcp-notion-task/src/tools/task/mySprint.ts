@@ -17,7 +17,7 @@ export function registerMySprintTool(server: McpServer): void {
     "notion-task-my-sprint",
     {
       description:
-        "내가 담당한 스프린트 작업 목록을 조회합니다. 이메일과 스프린트 번호로 담당 작업을 확인할 수 있습니다.",
+        "작업 시작 전 오늘 할 일 확인. 이메일+스프린트 번호로 내 작업 목록을 조회합니다.",
       inputSchema: z.object({
         email: z
           .string()

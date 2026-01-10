@@ -17,7 +17,7 @@ export function registerUpdateTool(server: McpServer): void {
     "notion-task-update",
     {
       description:
-        "작업 정보를 수정합니다. 제목, 상태, 마감일, 우선순위, 태그 등 여러 속성을 한 번에 업데이트할 수 있습니다.",
+        "여러 속성 동시 수정 시. 제목, 상태, 마감일, 우선순위, 태그 등을 한 번에 업데이트합니다.",
       inputSchema: z.object({
         pageId: z.string().describe("작업 페이지 ID"),
         title: z.string().optional().describe("새 제목"),

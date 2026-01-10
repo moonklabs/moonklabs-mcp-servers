@@ -17,7 +17,7 @@ export function registerCreateTool(server: McpServer): void {
     "notion-task-create",
     {
       description:
-        "새 작업을 생성합니다. 기본 템플릿으로 본문이 초기화되며, 필요한 속성들을 설정할 수 있습니다.",
+        "새 작업 추가 시. 기본 템플릿으로 본문을 초기화하고, 필요한 속성을 설정합니다.",
       inputSchema: z.object({
         title: z.string().describe("작업 제목"),
         status: z

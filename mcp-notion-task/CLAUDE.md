@@ -6,7 +6,7 @@ This file provides guidance to Claude Code when working with this MCP server.
 
 **MKL작업 Notion 데이터베이스 관리용 MCP 서버**
 
-Notion Task(MKL작업) 데이터베이스의 CRUD 작업을 위한 9개 MCP 도구를 제공합니다.
+Notion Task(MKL작업) 데이터베이스의 CRUD 작업을 위한 10개 MCP 도구를 제공합니다.
 HTTP 서버 형태로 배포되어 여러 개발자가 동시에 사용할 수 있습니다.
 
 ## 개발 명령어
@@ -59,7 +59,7 @@ src/
 ├── notion/
 │   ├── client.ts         # Notion 클라이언트 싱글톤
 │   └── types.ts          # Task, TaskStatus 등 타입 정의
-├── tools/                # 9개 MCP 도구
+├── tools/                # 10개 MCP 도구
 │   ├── index.ts          # registerAllTools()
 │   └── task/
 │       ├── get.ts / getLogic.ts           # 작업 상세 조회
@@ -70,7 +70,8 @@ src/
 │       ├── addLog.ts / addLogLogic.ts     # 진행 로그 추가
 │       ├── getContent.ts / getContentLogic.ts # 페이지 내용 조회
 │       ├── create.ts / createLogic.ts     # 작업 생성
-│       └── archive.ts / archiveLogic.ts   # 작업 보관
+│       ├── archive.ts / archiveLogic.ts   # 작업 보관
+│       └── help.ts / helpLogic.ts         # 도움말 가이드
 ├── resources/            # MCP 리소스 (현재 미사용)
 ├── prompts/              # MCP 프롬프트 (현재 미사용)
 └── utils/
@@ -100,17 +101,30 @@ server.registerTool("update-task-status", {
 
 ## MCP 도구 목록
 
+### 핵심 도구 (5개)
+
 | 도구명 | 설명 | 주요 파라미터 |
 |--------|------|---------------|
-| `get-task` | 작업 상세 조회 | taskId |
-| `list-tasks` | 작업 목록 조회 | status?, assignee?, sprintNumber?, limit? |
-| `get-my-sprint-tasks` | 내 스프린트 작업 | email, sprintNumber, status? |
-| `update-task-status` | 상태 변경 | taskId, status |
-| `update-task` | 작업 수정 | taskId, title?, description?, ... |
-| `add-task-log` | 진행 로그 추가 | taskId, content, author, logType? |
-| `get-task-content` | 페이지 내용 조회 | taskId |
-| `create-task` | 작업 생성 | title, sprintNumber?, assignee?, ... |
-| `archive-task` | 작업 보관 | taskId |
+| `notion-task-my-sprint` | 작업 시작 전 오늘 할 일 확인 | email, sprintNumber, status?, includeSubAssignee? |
+| `notion-task-update-status` | 작업 완료/시작 시 상태만 빠르게 변경 | pageId, status |
+| `notion-task-add-log` | 작업 중 진행상황 기록 | pageId, content, author, logType? |
+| `notion-task-get-content` | 작업 상세 내용 확인 시 | pageId |
+| `notion-task-update` | 여러 속성 동시 수정 시 | pageId, title?, status?, dueDate?, priority?, ... |
+
+### 보조 도구 (4개)
+
+| 도구명 | 설명 | 주요 파라미터 |
+|--------|------|---------------|
+| `notion-task-get` | 작업 속성 확인 시 (본문 제외) | pageId |
+| `notion-task-list` | 여러 조건으로 작업 검색 | status?, assignee?, sprintId?, sortBy?, ... |
+| `notion-task-create` | 새 작업 추가 시 | title, status?, issueType?, priority?, ... |
+| `notion-task-archive` | 오래된 작업 정리 시 | pageId |
+
+### 도움말 도구 (1개)
+
+| 도구명 | 설명 | 주요 파라미터 |
+|--------|------|---------------|
+| `notion-task-help` | 사용 가능한 도구와 워크플로우 안내 | topic? (all/workflow/status/sprint) |
 
 ## Notion 스키마
 

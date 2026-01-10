@@ -16,7 +16,7 @@ export function registerArchiveTool(server: McpServer): void {
     "notion-task-archive",
     {
       description:
-        "작업을 아카이브합니다. 아카이브된 작업은 기본 목록에서 제외되지만, 복원할 수 있습니다.",
+        "오래된 작업 정리 시. 아카이브하면 기본 목록에서 제외되지만, 복원 가능합니다.",
       inputSchema: z.object({
         pageId: z.string().describe("아카이브할 작업 페이지 ID"),
       }),

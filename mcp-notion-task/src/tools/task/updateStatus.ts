@@ -17,7 +17,7 @@ export function registerUpdateStatusTool(server: McpServer): void {
     "notion-task-update-status",
     {
       description:
-        "작업 상태를 변경합니다. 빠르게 상태만 업데이트할 때 사용합니다.",
+        "작업 완료/시작 시 상태만 빠르게 변경. 다른 속성 수정은 update 사용.",
       inputSchema: z.object({
         pageId: z.string().describe("작업 페이지 ID"),
         status: z

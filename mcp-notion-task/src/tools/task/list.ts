@@ -17,7 +17,7 @@ export function registerListTool(server: McpServer): void {
     "notion-task-list",
     {
       description:
-        "작업 목록을 조회합니다. 다양한 필터와 정렬 옵션을 사용할 수 있습니다.",
+        "여러 조건으로 작업 검색 시. 상태, 담당자, 스프린트 등 다양한 필터와 정렬을 지원합니다.",
       inputSchema: z.object({
         status: z
           .enum(["시작 전", "일시중지", "진행 중", "완료", "보관됨", "상담완료"])

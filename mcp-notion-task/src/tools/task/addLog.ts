@@ -17,7 +17,7 @@ export function registerAddLogTool(server: McpServer): void {
     "notion-task-add-log",
     {
       description:
-        "작업에 진행 로그를 추가합니다. Markdown 형식으로 작성할 수 있으며, Changelog 섹션에 자동으로 타임스탬프와 함께 기록됩니다.",
+        "작업 중 진행상황 기록. Markdown 형식으로 작성하며, 타임스탬프가 자동으로 추가됩니다.",
       inputSchema: z.object({
         pageId: z.string().describe("작업 페이지 ID"),
         content: z

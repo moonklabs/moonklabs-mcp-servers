@@ -16,7 +16,7 @@ export function registerGetContentTool(server: McpServer): void {
     "notion-task-get-content",
     {
       description:
-        "작업 페이지의 본문 콘텐츠를 Markdown 형식으로 조회합니다. 진행 로그, 상세 설명 등을 확인할 수 있습니다.",
+        "작업 상세 내용 확인 시. 진행 로그, 본문을 Markdown 형식으로 조회합니다.",
       inputSchema: z.object({
         pageId: z.string().describe("작업 페이지 ID"),
       }),

@@ -15,7 +15,7 @@ export function registerGetTool(server: McpServer): void {
   server.registerTool(
     "notion-task-get",
     {
-      description: "작업 상세 정보를 조회합니다. 페이지 ID로 특정 작업의 모든 속성을 확인할 수 있습니다.",
+      description: "작업 속성 확인 시. 본문 제외, 메타데이터(상태, 우선순위 등)만 조회합니다.",
       inputSchema: z.object({
         pageId: z.string().describe("조회할 작업의 Notion 페이지 ID"),
       }),

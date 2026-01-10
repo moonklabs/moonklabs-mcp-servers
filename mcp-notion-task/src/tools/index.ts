@@ -18,6 +18,9 @@ import { registerListTool } from "./task/list.js";
 import { registerCreateTool } from "./task/create.js";
 import { registerArchiveTool } from "./task/archive.js";
 
+// 도움말 도구
+import { registerHelpTool } from "./task/help.js";
+
 /**
  * 모든 도구를 서버에 등록합니다.
  * @param server MCP 서버 인스턴스
@@ -35,6 +38,9 @@ export function registerAllTools(server: McpServer): void {
   registerListTool(server);          // notion-task-list
   registerCreateTool(server);        // notion-task-create
   registerArchiveTool(server);       // notion-task-archive
+
+  // 도움말 도구
+  registerHelpTool(server);          // notion-task-help
 }
 
 // 개별 등록 함수들도 export
@@ -48,4 +54,5 @@ export {
   registerListTool,
   registerCreateTool,
   registerArchiveTool,
+  registerHelpTool,
 };
