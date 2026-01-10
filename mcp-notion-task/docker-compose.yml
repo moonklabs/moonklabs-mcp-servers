@@ -4,10 +4,10 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "3434:3434"
     environment:
       - NODE_ENV=production
-      - PORT=3000
+      - PORT=3434
       - HOST=0.0.0.0
       - NOTION_API_TOKEN=${NOTION_API_TOKEN}
       - TASK_DATABASE_ID=${TASK_DATABASE_ID}
@@ -16,7 +16,7 @@ services:
       - .env
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3434/health"]
       interval: 30s
       timeout: 3s
       retries: 3

@@ -17,7 +17,7 @@ npm install
 
 # 개발 모드
 npm run dev              # stdio 서버 (Claude Desktop 연동용)
-npm run dev:http         # HTTP 서버 (watch 모드, 포트 3000)
+npm run dev:http         # HTTP 서버 (watch 모드, 포트 3434)
 
 # 테스트
 npm test                 # vitest 실행

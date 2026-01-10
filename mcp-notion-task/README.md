@@ -22,7 +22,7 @@ cp .env.example .env
 
 # 개발 모드 실행
 npm run dev          # stdio 서버
-npm run dev:http     # HTTP 서버 (포트 3000)
+npm run dev:http     # HTTP 서버 (포트 3434)
 
 # 테스트
 npm test
@@ -156,7 +156,7 @@ notion-task-add-log {"pageId": "xxx", "content": "작업 완료"}
       "command": "npx",
       "args": [
         "mcp-remote",
-        "http://your-server:3000/mcp",
+        "http://your-server:3434/mcp",
         "--header",
         "Authorization: Bearer ${AUTH_TOKEN}"
       ],
@@ -187,7 +187,7 @@ npm run start:http
 
 ```bash
 # 1. 세션 초기화
-curl -X POST http://your-server:3000/mcp \
+curl -X POST http://your-server:3434/mcp \
   -H "Content-Type: application/json" \
   -H "Accept: application/json, text/event-stream" \
   -H "Authorization: Bearer your-token" \
@@ -205,13 +205,13 @@ curl -X POST http://your-server:3000/mcp \
 # 응답에서 mcp-session-id 헤더 추출
 
 # 2. initialized 알림
-curl -X POST http://your-server:3000/mcp \
+curl -X POST http://your-server:3434/mcp \
   -H "mcp-session-id: <session-id>" \
   -H "Authorization: Bearer your-token" \
   -d '{"jsonrpc": "2.0", "method": "notifications/initialized"}'
 
 # 3. 도구 호출 (email 자동 주입!)
-curl -X POST http://your-server:3000/mcp \
+curl -X POST http://your-server:3434/mcp \
   -H "mcp-session-id: <session-id>" \
   -H "Authorization: Bearer your-token" \
   -d '{
@@ -232,7 +232,7 @@ curl -X POST http://your-server:3000/mcp \
 docker build -t mcp-notion-task .
 
 # 컨테이너 실행
-docker run -d -p 3000:3000 \
+docker run -d -p 3434:3434 \
   -e NOTION_TOKEN=secret_xxx \
   -e NOTION_TASK_DATABASE_ID=xxx \
   -e NOTION_SPRINT_DATABASE_ID=xxx \
@@ -245,7 +245,7 @@ docker run -d -p 3000:3000 \
 docker compose up -d
 
 # 헬스체크
-curl http://localhost:3000/health
+curl http://localhost:3434/health
 
 # 로그 확인
 docker logs mcp-notion-task

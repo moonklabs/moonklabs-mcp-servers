@@ -49,7 +49,7 @@ export function loadConfig(): Config {
       sprintDatabaseId: requireEnv("NOTION_SPRINT_DATABASE_ID"),
     },
     server: {
-      port: parseInt(optionalEnv("PORT", "3000"), 10),
+      port: parseInt(optionalEnv("PORT", "3434"), 10),
       host: optionalEnv("HOST", "0.0.0.0"),
     },
     auth: {

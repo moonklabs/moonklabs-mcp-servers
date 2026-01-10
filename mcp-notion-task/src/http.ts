@@ -36,7 +36,7 @@ import {
 // 서버 설정
 const SERVER_NAME = "mcp-notion-task";
 const SERVER_VERSION = "1.0.0";
-const PORT = parseInt(process.env.PORT || "3000", 10);
+const PORT = parseInt(process.env.PORT || "3434", 10);
 const HOST = process.env.HOST || "0.0.0.0";
 
 // 활성 세션 저장소
