@@ -10,7 +10,8 @@
   "scripts": {
     "dev": "tsx src/stdio.ts",
     "dev:http": "tsx watch src/http.ts",
-    "build": "tsc",
+    "build": "esbuild src/stdio.ts src/http.ts --bundle --platform=node --outdir=dist --format=esm --packages=external",
+    "build:tsc": "tsc",
     "start": "node dist/stdio.js",
     "start:http": "node dist/http.js",
     "inspector": "npx @modelcontextprotocol/inspector tsx src/stdio.ts",
@@ -39,6 +40,7 @@
     "zod": "^3.25.0"
   },
   "devDependencies": {
+    "esbuild": "^0.24.0",
     "@types/express": "^5.0.0",
     "@types/node": "^22.0.0",
     "@vitest/ui": "^2.0.0",
