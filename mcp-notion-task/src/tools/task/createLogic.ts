@@ -72,7 +72,7 @@ export async function createTask(input: CreateTaskInput): Promise<Task> {
  */
 function buildCreateProperties(input: CreateTaskInput): Record<string, any> {
   const props: Record<string, any> = {
-    "이름": buildTitleProperty(input.title),
+    "작업 이름": buildTitleProperty(input.title),
   };
 
   if (input.status) {
@@ -82,7 +82,7 @@ function buildCreateProperties(input: CreateTaskInput): Record<string, any> {
   }
 
   if (input.issueType) {
-    props["이슈 타입"] = buildSelectProperty(input.issueType);
+    props["이슈구분"] = buildSelectProperty(input.issueType);
   }
 
   if (input.priority) {

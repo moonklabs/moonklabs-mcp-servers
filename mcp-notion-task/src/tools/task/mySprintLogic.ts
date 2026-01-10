@@ -18,7 +18,7 @@ export async function findSprintIdByNumber(sprintNumber: number): Promise<string
   const response = await notion.databases.query({
     database_id: sprintDatabaseId,
     filter: {
-      property: "이름",
+      property: "스프린트 이름",
       title: {
         equals: `스프린트 ${sprintNumber}`,
       },
@@ -69,13 +69,13 @@ export async function getMySprintTasks(
   if (includeSubAssignee) {
     conditions.push({
       or: [
-        { property: "담당자(정)", people: { contains: email } },
+        { property: "담당자", people: { contains: email } },
         { property: "담당자(부)", people: { contains: email } },
       ],
     });
   } else {
     conditions.push({
-      property: "담당자(정)",
+      property: "담당자",
       people: { contains: email },
     });
   }

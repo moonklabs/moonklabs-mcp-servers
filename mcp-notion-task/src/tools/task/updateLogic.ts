@@ -51,7 +51,7 @@ function buildUpdateProperties(updates: UpdateTaskInput): Record<string, any> {
   const props: Record<string, any> = {};
 
   if (updates.title !== undefined) {
-    props["이름"] = buildTitleProperty(updates.title);
+    props["작업 이름"] = buildTitleProperty(updates.title);
   }
 
   if (updates.status !== undefined) {
@@ -59,7 +59,7 @@ function buildUpdateProperties(updates: UpdateTaskInput): Record<string, any> {
   }
 
   if (updates.issueType !== undefined) {
-    props["이슈 타입"] = buildSelectProperty(updates.issueType);
+    props["이슈구분"] = buildSelectProperty(updates.issueType);
   }
 
   if (updates.priority !== undefined) {

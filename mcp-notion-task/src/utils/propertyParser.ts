@@ -96,13 +96,13 @@ export function parseTaskFromPage(page: NotionPage): Task {
 
   return {
     id: page.id,
-    title: parseTitle(props["이름"]),
+    title: parseTitle(props["작업 이름"]),
     status: (parseSelect(props["상태"]) || "시작 전") as TaskStatus,
-    assignees: parsePeople(props["담당자(정)"]),
+    assignees: parsePeople(props["담당자"]),
     subAssignees: parsePeople(props["담당자(부)"]),
     sprintId: parseRelation(props["스프린트"]),
     projectId: parseRelation(props["프로젝트"]),
-    issueType: parseSelect(props["이슈 타입"]) as IssueType | undefined,
+    issueType: parseSelect(props["이슈구분"]) as IssueType | undefined,
     priority: parseSelect(props["우선순위"]) as Priority | undefined,
     dueDate: parseDate(props["마감일"]),
     estimatedDays: parseNumber(props["예정기간"]),

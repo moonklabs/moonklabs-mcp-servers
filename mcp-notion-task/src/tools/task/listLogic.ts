@@ -51,12 +51,12 @@ function buildFilter(filter?: TaskListFilter): any {
   }
 
   if (filter.assignee) {
-    // 담당자(정) 또는 담당자(부) 검색
+    // 담당자 또는 담당자(부) 검색
     if (filter.includeSubAssignee) {
       conditions.push({
         or: [
           {
-            property: "담당자(정)",
+            property: "담당자",
             people: { contains: filter.assignee },
           },
           {
@@ -67,7 +67,7 @@ function buildFilter(filter?: TaskListFilter): any {
       });
     } else {
       conditions.push({
-        property: "담당자(정)",
+        property: "담당자",
         people: { contains: filter.assignee },
       });
     }
@@ -96,7 +96,7 @@ function buildFilter(filter?: TaskListFilter): any {
 
   if (filter.issueType) {
     conditions.push({
-      property: "이슈 타입",
+      property: "이슈구분",
       select: { equals: filter.issueType },
     });
   }
