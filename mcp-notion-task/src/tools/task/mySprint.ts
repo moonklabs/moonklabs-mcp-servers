@@ -8,6 +8,7 @@ import { z } from "zod";
 import { getMySprintTasks } from "./mySprintLogic.js";
 import { formatSprintTaskList, formatError } from "../../utils/responseFormatter.js";
 import type { TaskStatus } from "../../notion/types.js";
+import { getUserFromSession } from "../index.js";
 
 /**
  * 내 스프린트 작업 조회 도구를 등록합니다.
@@ -17,12 +18,13 @@ export function registerMySprintTool(server: McpServer): void {
     "notion-task-my-sprint",
     {
       description:
-        "작업 시작 전 오늘 할 일 확인. 이메일+스프린트 번호로 내 작업 목록을 조회합니다.",
+        "작업 시작 전 오늘 할 일 확인. 인증된 세션에서는 email 생략 가능.",
       inputSchema: z.object({
         email: z
           .string()
           .email()
-          .describe("담당자 이메일 (예: user@moonklabs.com)"),
+          .optional()
+          .describe("담당자 이메일 (인증된 세션에서는 자동 주입)"),
         sprintNumber: z
           .number()
           .int()
@@ -38,10 +40,29 @@ export function registerMySprintTool(server: McpServer): void {
           .describe("담당자(부)로 할당된 작업도 포함할지 (기본: true)"),
       }),
     },
-    async ({ email, sprintNumber, status, includeSubAssignee }) => {
+    async ({ email, sprintNumber, status, includeSubAssignee }, extra) => {
+      // 세션에서 사용자 정보 가져오기
+      const sessionUser = getUserFromSession(extra?.sessionId);
+
+      // email 우선순위: 파라미터 > 세션 > 에러
+      const resolvedEmail = email || sessionUser?.email;
+
+      if (!resolvedEmail) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: formatError(
+                "email이 필요합니다. 인증하거나 email 파라미터를 전달해주세요."
+              ),
+            },
+          ],
+          isError: true,
+        };
+      }
       try {
         const { tasks, sprintId } = await getMySprintTasks(
-          email,
+          resolvedEmail,
           sprintNumber,
           status as TaskStatus | undefined,
           includeSubAssignee
@@ -61,7 +82,7 @@ export function registerMySprintTool(server: McpServer): void {
           };
         }
 
-        const header = `## 스프린트 ${sprintNumber} - ${email}님의 작업\n\n`;
+        const header = `## 스프린트 ${sprintNumber} - ${resolvedEmail}님의 작업\n\n`;
         const formatted = header + formatSprintTaskList(tasks);
 
         return {

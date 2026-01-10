@@ -7,7 +7,9 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { listTasks } from "./listLogic.js";
 import { formatTaskList, formatError } from "../../utils/responseFormatter.js";
+import { emailToUserId } from "../../utils/emailToUserId.js";
 import type { TaskStatus, Priority, IssueType, TaskSortBy } from "../../notion/types.js";
+import { getUserFromSession } from "../index.js";
 
 /**
  * 작업 목록 조회 도구를 등록합니다.
@@ -26,7 +28,11 @@ export function registerListTool(server: McpServer): void {
         assignee: z
           .string()
           .optional()
-          .describe("담당자 이메일 (Notion 사용자 ID)"),
+          .describe("담당자 이메일 주소"),
+        useSessionUser: z
+          .boolean()
+          .default(false)
+          .describe("인증된 세션의 이메일을 assignee로 사용 (true면 assignee 무시)"),
         includeSubAssignee: z
           .boolean()
           .default(true)
@@ -66,6 +72,7 @@ export function registerListTool(server: McpServer): void {
     async ({
       status,
       assignee,
+      useSessionUser,
       includeSubAssignee,
       sprintId,
       projectId,
@@ -74,12 +81,25 @@ export function registerListTool(server: McpServer): void {
       sortBy,
       sortDirection,
       pageSize,
-    }) => {
+    }, extra) => {
+      // 세션에서 사용자 정보 가져오기
+      const sessionUser = getUserFromSession(extra?.sessionId);
+
+      // useSessionUser가 true면 세션 email을 assignee로 사용
+      const resolvedAssignee = useSessionUser && sessionUser?.email
+        ? sessionUser.email
+        : assignee;
       try {
+        // 이메일을 UUID로 변환 (Notion API people 필터는 UUID만 허용)
+        let resolvedAssigneeId: string | undefined;
+        if (resolvedAssignee) {
+          resolvedAssigneeId = await emailToUserId(resolvedAssignee);
+        }
+
         const tasks = await listTasks(
           {
             status: status as TaskStatus | undefined,
-            assignee,
+            assignee: resolvedAssigneeId,
             includeSubAssignee,
             sprintId,
             projectId,

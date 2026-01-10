@@ -31,6 +31,10 @@ export interface Config {
     port: number;
     host: string;
   };
+  auth: {
+    required: boolean;
+    usersConfigured: boolean;
+  };
 }
 
 /**
@@ -47,6 +51,10 @@ export function loadConfig(): Config {
     server: {
       port: parseInt(optionalEnv("PORT", "3000"), 10),
       host: optionalEnv("HOST", "0.0.0.0"),
+    },
+    auth: {
+      required: process.env.AUTH_REQUIRED !== "false",
+      usersConfigured: !!process.env.AUTH_USERS,
     },
   };
 }

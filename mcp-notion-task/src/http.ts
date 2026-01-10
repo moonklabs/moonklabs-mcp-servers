@@ -15,6 +15,7 @@
  *   DELETE /mcp - 세션 종료
  */
 
+import "dotenv/config";
 import express, { Request, Response, NextFunction } from "express";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
@@ -24,6 +25,13 @@ import { getConfig } from "./config/index.js";
 import { registerAllTools } from "./tools/index.js";
 import { registerAllResources } from "./resources/index.js";
 import { registerAllPrompts } from "./prompts/index.js";
+import {
+  authenticateToken,
+  setAuthSession,
+  getAuthSession,
+  deleteAuthSession,
+  isAuthRequired,
+} from "./auth/index.js";
 
 // 서버 설정
 const SERVER_NAME = "mcp-notion-task";
@@ -69,7 +77,7 @@ function createApp(): express.Application {
     res.header("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
     res.header(
       "Access-Control-Allow-Headers",
-      "Content-Type, mcp-session-id, Last-Event-ID"
+      "Content-Type, mcp-session-id, Last-Event-ID, Authorization"
     );
     next();
   });
@@ -82,6 +90,24 @@ function createApp(): express.Application {
   // POST /mcp - MCP 요청 처리
   app.post("/mcp", async (req: Request, res: Response) => {
     try {
+      // 인증 처리
+      const authHeader = req.headers.authorization;
+      let authenticatedUser = null;
+
+      if (authHeader?.startsWith("Bearer ")) {
+        const token = authHeader.slice(7);
+        authenticatedUser = authenticateToken(token);
+      }
+
+      // 인증 필수 모드에서 인증 실패 시
+      if (isAuthRequired() && !authenticatedUser) {
+        res.status(401).json({
+          error: "Authentication required",
+          message: "Valid Authorization: Bearer <token> header required",
+        });
+        return;
+      }
+
       // 세션 ID 확인 또는 생성
       let sessionId = req.headers["mcp-session-id"] as string | undefined;
 
@@ -96,7 +122,14 @@ function createApp(): express.Application {
         await server.connect(transport);
         sessions.set(sessionId, { server, transport });
 
-        console.log(`New session created: ${sessionId}`);
+        // 인증 정보 세션에 저장
+        if (authenticatedUser) {
+          setAuthSession(sessionId, authenticatedUser);
+        }
+
+        console.log(
+          `New session created: ${sessionId}, user: ${authenticatedUser?.email || "anonymous"}`
+        );
       }
 
       const session = sessions.get(sessionId)!;
@@ -151,6 +184,7 @@ function createApp(): express.Application {
     if (session) {
       await session.server.close();
       sessions.delete(sessionId);
+      deleteAuthSession(sessionId); // 인증 정보도 삭제
       console.log(`Session closed: ${sessionId}`);
     }
 

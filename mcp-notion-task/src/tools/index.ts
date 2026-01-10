@@ -4,6 +4,7 @@
  */
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { getAuthSession } from "../auth/index.js";
 
 // 핵심 도구
 import { registerMySprintTool } from "./task/mySprint.js";
@@ -41,6 +42,20 @@ export function registerAllTools(server: McpServer): void {
 
   // 도움말 도구
   registerHelpTool(server);          // notion-task-help
+}
+
+/**
+ * 세션에서 사용자 정보를 가져옵니다.
+ * 인증된 세션에서 email과 name을 반환합니다.
+ * @param sessionId MCP 세션 ID
+ * @returns 사용자 정보 또는 null
+ */
+export function getUserFromSession(
+  sessionId?: string
+): { email: string; name: string } | null {
+  if (!sessionId) return null;
+  const session = getAuthSession(sessionId);
+  return session ? { email: session.user.email, name: session.user.name } : null;
 }
 
 // 개별 등록 함수들도 export

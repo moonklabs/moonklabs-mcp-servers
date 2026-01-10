@@ -5,6 +5,7 @@
 
 import { getNotionClient, getTaskDatabaseId, getSprintDatabaseId } from "../../notion/client.js";
 import { parseTasksFromPages } from "../../utils/propertyParser.js";
+import { emailToUserId } from "../../utils/emailToUserId.js";
 import type { Task, TaskStatus } from "../../notion/types.js";
 
 /**
@@ -35,7 +36,7 @@ export async function findSprintIdByNumber(sprintNumber: number): Promise<string
 
 /**
  * 내 스프린트 작업을 조회합니다.
- * @param email 담당자 이메일 (Notion 사용자 ID로 변환 필요)
+ * @param email 담당자 이메일 (Notion 사용자 UUID로 변환됨)
  * @param sprintNumber 스프린트 번호
  * @param status 상태 필터 (선택)
  * @param includeSubAssignee 담당자(부)도 포함할지
@@ -56,6 +57,9 @@ export async function getMySprintTasks(
     return { tasks: [], sprintId: null };
   }
 
+  // 이메일 → UUID 변환
+  const userId = await emailToUserId(email);
+
   // 필터 조건 빌드
   const conditions: any[] = [
     {
@@ -64,19 +68,18 @@ export async function getMySprintTasks(
     },
   ];
 
-  // 담당자 조건 (이메일은 Notion에서 people 필터에 직접 사용 가능)
-  // 참고: Notion API에서 people 필터는 user_id 또는 email 사용 가능
+  // 담당자 조건 (Notion API people 필터는 UUID만 허용)
   if (includeSubAssignee) {
     conditions.push({
       or: [
-        { property: "담당자", people: { contains: email } },
-        { property: "담당자(부)", people: { contains: email } },
+        { property: "담당자", people: { contains: userId } },
+        { property: "담당자(부)", people: { contains: userId } },
       ],
     });
   } else {
     conditions.push({
       property: "담당자",
-      people: { contains: email },
+      people: { contains: userId },
     });
   }
 
