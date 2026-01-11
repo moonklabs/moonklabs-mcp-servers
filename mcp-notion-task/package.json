@@ -15,7 +15,7 @@
     "start": "node dist/stdio.js",
     "start:http": "node dist/http.js",
     "inspector": "npx @modelcontextprotocol/inspector tsx src/stdio.ts",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "NODE_OPTIONS='--max-old-space-size=8192' tsc",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage"
