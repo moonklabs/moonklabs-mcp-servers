@@ -18,11 +18,17 @@ export function registerInboxGetTool(server: McpServer): void {
       description: "Inbox(문서) 상세 조회. 속성과 본문을 포함하여 조회합니다.",
       inputSchema: z.object({
         pageId: z.string().describe("Notion 페이지 ID (UUID)"),
+        maxBlocks: z
+          .number()
+          .min(1)
+          .max(200)
+          .default(50)
+          .describe("최대 블록 수 (기본값: 50, 최대: 200)"),
       }),
     },
-    async ({ pageId }) => {
+    async ({ pageId, maxBlocks }) => {
       try {
-        const detail = await getInbox(pageId);
+        const detail = await getInbox(pageId, maxBlocks);
 
         // 속성 정보
         const formatted = formatInboxDetail(detail);

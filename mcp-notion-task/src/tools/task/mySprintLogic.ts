@@ -40,12 +40,14 @@ export async function findSprintIdByNumber(sprintNumber: number): Promise<string
  * @param sprintNumber 스프린트 번호
  * @param status 상태 필터 (선택)
  * @param includeSubAssignee 담당자(부)도 포함할지
+ * @param pageSize 최대 작업 수 (기본값: 50, 최대: 100)
  */
 export async function getMySprintTasks(
   email: string,
   sprintNumber: number,
   status?: TaskStatus,
-  includeSubAssignee: boolean = true
+  includeSubAssignee: boolean = true,
+  pageSize: number = 50
 ): Promise<{ tasks: Task[]; sprintId: string | null }> {
   const notion = getNotionClient();
   const taskDatabaseId = getTaskDatabaseId();
@@ -98,7 +100,7 @@ export async function getMySprintTasks(
       { property: "우선순위", direction: "descending" },
       { property: "마감일", direction: "ascending" },
     ],
-    page_size: 100,
+    page_size: Math.min(pageSize, 100), // 최대 100개 제한
   });
 
   const tasks = parseTasksFromPages(response.results as any[]);

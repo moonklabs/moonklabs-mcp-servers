@@ -38,9 +38,16 @@ export function registerMySprintTool(server: McpServer): void {
           .boolean()
           .default(true)
           .describe("담당자(부)로 할당된 작업도 포함할지 (기본: true)"),
+        pageSize: z
+          .number()
+          .int()
+          .min(1)
+          .max(100)
+          .default(50)
+          .describe("최대 작업 수 (기본값: 50, 최대: 100)"),
       }),
     },
-    async ({ email, sprintNumber, status, includeSubAssignee }, extra) => {
+    async ({ email, sprintNumber, status, includeSubAssignee, pageSize }, extra) => {
       // 세션에서 사용자 정보 가져오기
       const sessionUser = getUserFromSession(extra?.sessionId);
 
@@ -65,7 +72,8 @@ export function registerMySprintTool(server: McpServer): void {
           resolvedEmail,
           sprintNumber,
           status as TaskStatus | undefined,
-          includeSubAssignee
+          includeSubAssignee,
+          pageSize
         );
 
         if (!sprintId) {
