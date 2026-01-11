@@ -26,6 +26,7 @@ import { registerHelpTool } from "./task/help.js";
 import { registerInboxListTool } from "./inbox/list.js";
 import { registerInboxGetTool } from "./inbox/get.js";
 import { registerInboxCreateTool } from "./inbox/create.js";
+import { registerInboxUpdateTool } from "./inbox/update.js";
 
 /**
  * 모든 도구를 서버에 등록합니다.
@@ -52,6 +53,7 @@ export function registerAllTools(server: McpServer): void {
   registerInboxListTool(server);     // notion-inbox-list
   registerInboxGetTool(server);      // notion-inbox-get
   registerInboxCreateTool(server);   // notion-inbox-create
+  registerInboxUpdateTool(server);   // notion-inbox-update
 }
 
 /**
@@ -83,4 +85,5 @@ export {
   registerInboxListTool,
   registerInboxGetTool,
   registerInboxCreateTool,
+  registerInboxUpdateTool,
 };
