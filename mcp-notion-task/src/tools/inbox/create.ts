@@ -7,6 +7,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { createInbox } from "./createLogic.js";
 import { formatInboxDetail, formatError } from "../../utils/responseFormatter.js";
+import { getUserFromSession } from "../index.js";
 
 /**
  * Inbox 생성 도구를 등록합니다.
@@ -22,6 +23,10 @@ export function registerInboxCreateTool(server: McpServer): void {
           .array(z.string())
           .optional()
           .describe("작성자 이메일 배열"),
+        useSessionUser: z
+          .boolean()
+          .default(true)
+          .describe("인증된 세션의 이메일로 작성자 지정 (기본: true). authors 지정 시 무시됨"),
         tags: z
           .array(z.string())
           .optional()
@@ -32,11 +37,22 @@ export function registerInboxCreateTool(server: McpServer): void {
           .describe("초기 본문 (Markdown 형식)"),
       }),
     },
-    async ({ title, authors, tags, content }) => {
+    async ({ title, authors, useSessionUser, tags, content }, extra) => {
       try {
+        // 세션에서 사용자 정보 가져오기
+        const sessionUser = getUserFromSession(extra?.sessionId);
+
+        // 작성자 해석: authors 명시 > 세션 사용자 > 미지정
+        let resolvedAuthors: string[] | undefined;
+        if (authors && authors.length > 0) {
+          resolvedAuthors = authors;
+        } else if (useSessionUser && sessionUser?.email) {
+          resolvedAuthors = [sessionUser.email];
+        }
+
         const item = await createInbox({
           title,
-          authors,
+          authors: resolvedAuthors,
           tags,
           content,
         });

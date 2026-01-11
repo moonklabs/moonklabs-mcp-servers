@@ -13,9 +13,11 @@ import {
   buildNumberProperty,
   buildRelationProperty,
   buildRichTextProperty,
+  buildPeopleProperty,
   buildProperties,
 } from "../../utils/propertyBuilder.js";
 import { resolveToPageId } from "../../utils/taskIdResolver.js";
+import { emailsToUserIds } from "../../utils/emailToUserId.js";
 import type { Task, UpdateTaskInput } from "../../notion/types.js";
 
 /**
@@ -31,8 +33,15 @@ export async function updateTask(
   const pageId = await resolveToPageId(id);
   const notion = getNotionClient();
 
+  // 담당자 이메일 → UUID 변환
+  let assigneeIds: string[] | undefined;
+  if (updates.assignees && updates.assignees.length > 0) {
+    const userMap = await emailsToUserIds(updates.assignees);
+    assigneeIds = Array.from(userMap.values());
+  }
+
   // 업데이트할 속성 빌드
-  const properties = buildUpdateProperties(updates);
+  const properties = buildUpdateProperties(updates, assigneeIds);
 
   if (Object.keys(properties).length === 0) {
     throw new Error("수정할 속성이 없습니다.");
@@ -48,8 +57,13 @@ export async function updateTask(
 
 /**
  * UpdateTaskInput을 Notion properties 객체로 변환
+ * @param updates 수정할 속성들
+ * @param assigneeIds 담당자 UUID 배열 (이메일에서 변환됨)
  */
-function buildUpdateProperties(updates: UpdateTaskInput): Record<string, any> {
+function buildUpdateProperties(
+  updates: UpdateTaskInput,
+  assigneeIds?: string[]
+): Record<string, any> {
   const props: Record<string, any> = {};
 
   if (updates.title !== undefined) {
@@ -92,9 +106,10 @@ function buildUpdateProperties(updates: UpdateTaskInput): Record<string, any> {
     props["프로젝트"] = buildRelationProperty([updates.projectId]);
   }
 
-  // 담당자 관련은 People 타입이므로 별도 처리 필요
-  // Notion API에서 email → user_id 변환 필요
-  // 일단 user_id 직접 전달 가정
+  // 담당자 처리
+  if (assigneeIds && assigneeIds.length > 0) {
+    props["담당자"] = buildPeopleProperty(assigneeIds);
+  }
 
   return props;
 }

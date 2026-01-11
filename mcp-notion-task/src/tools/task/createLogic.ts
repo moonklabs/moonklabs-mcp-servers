@@ -13,8 +13,10 @@ import {
   buildNumberProperty,
   buildRelationProperty,
   buildRichTextProperty,
+  buildPeopleProperty,
 } from "../../utils/propertyBuilder.js";
 import { markdownToBlocks } from "../../utils/markdownToBlocks.js";
+import { emailsToUserIds } from "../../utils/emailToUserId.js";
 import type { Task, CreateTaskInput } from "../../notion/types.js";
 
 /**
@@ -48,8 +50,15 @@ export async function createTask(input: CreateTaskInput): Promise<Task> {
   const notion = getNotionClient();
   const databaseId = getTaskDatabaseId();
 
+  // 담당자 이메일 → UUID 변환
+  let assigneeIds: string[] | undefined;
+  if (input.assignees && input.assignees.length > 0) {
+    const userMap = await emailsToUserIds(input.assignees);
+    assigneeIds = Array.from(userMap.values());
+  }
+
   // 속성 빌드
-  const properties = buildCreateProperties(input);
+  const properties = buildCreateProperties(input, assigneeIds);
 
   // 본문 블록 생성
   const content = input.content || DEFAULT_TEMPLATE;
@@ -69,8 +78,13 @@ export async function createTask(input: CreateTaskInput): Promise<Task> {
 
 /**
  * CreateTaskInput을 Notion properties 객체로 변환
+ * @param input 작업 생성 입력
+ * @param assigneeIds 담당자 UUID 배열 (이메일에서 변환됨)
  */
-function buildCreateProperties(input: CreateTaskInput): Record<string, any> {
+function buildCreateProperties(
+  input: CreateTaskInput,
+  assigneeIds?: string[]
+): Record<string, any> {
   const props: Record<string, any> = {
     "작업 이름": buildTitleProperty(input.title),
   };
@@ -109,8 +123,10 @@ function buildCreateProperties(input: CreateTaskInput): Record<string, any> {
     props["스프린트"] = buildRelationProperty([input.sprintId]);
   }
 
-  // 담당자는 People 타입으로, email → user_id 변환이 필요
-  // 현재는 생략 (나중에 구현 필요)
+  // 담당자 처리
+  if (assigneeIds && assigneeIds.length > 0) {
+    props["담당자"] = buildPeopleProperty(assigneeIds);
+  }
 
   return props;
 }

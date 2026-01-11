@@ -25,6 +25,10 @@ export function registerUpdateTool(server: McpServer): void {
           .enum(["시작 전", "일시중지", "진행 중", "완료", "보관됨", "상담완료"])
           .optional()
           .describe("새 상태"),
+        assignee: z
+          .string()
+          .optional()
+          .describe("담당자 이메일 주소"),
         issueType: z
           .enum(["버그", "개선", "고객요청", "작업", "미팅", "CS"])
           .optional()
@@ -60,6 +64,7 @@ export function registerUpdateTool(server: McpServer): void {
       id,
       title,
       status,
+      assignee,
       issueType,
       priority,
       dueDate,
@@ -73,6 +78,7 @@ export function registerUpdateTool(server: McpServer): void {
         const updates: UpdateTaskInput = {
           title,
           status: status as UpdateTaskInput["status"],
+          assignees: assignee ? [assignee] : undefined,
           issueType: issueType as UpdateTaskInput["issueType"],
           priority: priority as UpdateTaskInput["priority"],
           dueDate,
