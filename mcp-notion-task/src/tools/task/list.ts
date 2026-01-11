@@ -10,6 +10,7 @@ import { formatTaskList, formatError } from "../../utils/responseFormatter.js";
 import { emailToUserId } from "../../utils/emailToUserId.js";
 import type { TaskStatus, Priority, IssueType, TaskSortBy } from "../../notion/types.js";
 import { getUserFromSession } from "../index.js";
+import { resolveAssignee } from "./listHelpers.js";
 
 /**
  * 작업 목록 조회 도구를 등록합니다.
@@ -86,15 +87,11 @@ export function registerListTool(server: McpServer): void {
       const sessionUser = getUserFromSession(extra?.sessionId);
 
       // assignee 해석: assignee 명시 > 세션 사용자 > 전체 조회
-      let resolvedAssignee: string | undefined;
-      if (assignee) {
-        // assignee가 명시적으로 지정됨 - 최우선
-        resolvedAssignee = assignee;
-      } else if (useSessionUser && sessionUser?.email) {
-        // 세션 사용자로 필터링
-        resolvedAssignee = sessionUser.email;
-      }
-      // else: resolvedAssignee = undefined (전체 조회)
+      const resolvedAssignee = resolveAssignee(
+        assignee,
+        useSessionUser,
+        sessionUser?.email
+      );
       try {
         // 이메일을 UUID로 변환 (Notion API people 필터는 UUID만 허용)
         let resolvedAssigneeId: string | undefined;
