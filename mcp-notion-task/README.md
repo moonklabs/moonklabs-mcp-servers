@@ -68,7 +68,7 @@ AUTH_REQUIRED=true
 | 도구 | 설명 | 주요 파라미터 |
 |------|------|---------------|
 | `notion-task-get` | 작업 메타데이터 조회 | `pageId` |
-| `notion-task-list` | 작업 목록 검색 | `status?`, `assignee?`, `useSessionUser?`*, `sprintId?`, ... |
+| `notion-task-list` | 작업 목록 검색 | `status?`, `assignee?`, `useSessionUser?` (기본: true)*, `sprintId?`, ... |
 | `notion-task-create` | 새 작업 생성 | `title`, `status?`, `issueType?`, `priority?`, ... |
 | `notion-task-archive` | 작업 보관 | `pageId` |
 
@@ -78,7 +78,7 @@ AUTH_REQUIRED=true
 |------|------|---------------|
 | `notion-task-help` | 도구 사용법 안내 | `topic?` (`all`, `workflow`, `status`, `sprint`) |
 
-**\* 인증된 세션에서는 자동 주입됨**
+**\* 인증된 세션에서는 자동 주입됨. `useSessionUser`는 기본값이 `true`로, 인증 시 자동으로 내 작업만 필터링됩니다. 전체 작업을 보려면 `useSessionUser: false`를 지정하거나 `assignee`로 다른 사용자를 지정하세요.**
 
 ### 상태 값
 
