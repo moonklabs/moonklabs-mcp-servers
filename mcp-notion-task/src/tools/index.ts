@@ -22,6 +22,11 @@ import { registerArchiveTool } from "./task/archive.js";
 // 도움말 도구
 import { registerHelpTool } from "./task/help.js";
 
+// Inbox (문서) 도구
+import { registerInboxListTool } from "./inbox/list.js";
+import { registerInboxGetTool } from "./inbox/get.js";
+import { registerInboxCreateTool } from "./inbox/create.js";
+
 /**
  * 모든 도구를 서버에 등록합니다.
  * @param server MCP 서버 인스턴스
@@ -42,6 +47,11 @@ export function registerAllTools(server: McpServer): void {
 
   // 도움말 도구
   registerHelpTool(server);          // notion-task-help
+
+  // Inbox (문서) 도구
+  registerInboxListTool(server);     // notion-inbox-list
+  registerInboxGetTool(server);      // notion-inbox-get
+  registerInboxCreateTool(server);   // notion-inbox-create
 }
 
 /**
@@ -70,4 +80,7 @@ export {
   registerCreateTool,
   registerArchiveTool,
   registerHelpTool,
+  registerInboxListTool,
+  registerInboxGetTool,
+  registerInboxCreateTool,
 };

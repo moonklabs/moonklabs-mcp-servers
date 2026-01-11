@@ -36,3 +36,10 @@ export function getTaskDatabaseId(): string {
 export function getSprintDatabaseId(): string {
   return getConfig().notion.sprintDatabaseId;
 }
+
+/**
+ * Inbox(문서) 데이터베이스 ID를 가져옵니다.
+ */
+export function getInboxDatabaseId(): string {
+  return getConfig().notion.inboxDatabaseId;
+}

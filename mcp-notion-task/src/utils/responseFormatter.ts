@@ -3,7 +3,7 @@
  * Task 객체를 사용자 친화적인 마크다운 형식으로 변환합니다.
  */
 
-import type { Task } from "../notion/types.js";
+import type { Task, InboxItem } from "../notion/types.js";
 
 /**
  * 단일 작업을 상세 마크다운으로 포맷팅
@@ -174,4 +174,64 @@ function formatDateTime(isoString: string): string {
     hour: "2-digit",
     minute: "2-digit",
   });
+}
+
+// ============================================================================
+// Inbox (문서) 포맷팅 함수
+// ============================================================================
+
+/**
+ * 단일 Inbox 아이템을 상세 마크다운으로 포맷팅
+ */
+export function formatInboxDetail(item: InboxItem): string {
+  const lines: string[] = [];
+
+  lines.push(`## ${item.title}`);
+  lines.push("");
+  lines.push(`| 속성 | 값 |`);
+  lines.push(`|------|-----|`);
+  lines.push(`| 페이지ID | \`${item.id}\` |`);
+  lines.push(`| 작성자 | ${item.authors.join(", ") || "미지정"} |`);
+
+  if (item.tags.length > 0) {
+    lines.push(`| 태그 | ${item.tags.join(", ")} |`);
+  }
+
+  if (item.createdBy) {
+    lines.push(`| 생성자 | ${item.createdBy} |`);
+  }
+
+  lines.push(`| 생성일시 | ${formatDateTime(item.createdTime)} |`);
+  lines.push(`| 수정일시 | ${formatDateTime(item.lastEditedTime)} |`);
+
+  return lines.join("\n");
+}
+
+/**
+ * Inbox 아이템 목록을 마크다운 테이블로 포맷팅
+ */
+export function formatInboxList(items: InboxItem[]): string {
+  if (items.length === 0) {
+    return "조회된 문서가 없습니다.";
+  }
+
+  const lines: string[] = [];
+
+  lines.push(`총 ${items.length}개의 문서가 조회되었습니다.\n`);
+  lines.push(`| 제목 | 작성자 | 태그 | 수정일시 |`);
+  lines.push(`|------|--------|------|----------|`);
+
+  for (const item of items) {
+    const title = truncate(item.title, 40);
+    const authors = truncate(item.authors.join(", ") || "미지정", 20);
+    const tags = item.tags.length > 0 ? truncate(item.tags.join(", "), 20) : "-";
+    const edited = formatDateTime(item.lastEditedTime);
+
+    lines.push(`| ${title} | ${authors} | ${tags} | ${edited} |`);
+  }
+
+  lines.push("");
+  lines.push(`_💡 페이지ID로 상세 조회 가능 (notion-inbox-get)_`);
+
+  return lines.join("\n");
 }

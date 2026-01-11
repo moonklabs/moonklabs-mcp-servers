@@ -31,6 +31,7 @@ export interface Config {
     token: string;
     taskDatabaseId: string;
     sprintDatabaseId: string;
+    inboxDatabaseId: string;
   };
   server: {
     port: number;
@@ -67,6 +68,7 @@ export function loadConfig(): Config {
       token: requireEnv("NOTION_TOKEN"),
       taskDatabaseId: requireEnv("NOTION_TASK_DATABASE_ID"),
       sprintDatabaseId: requireEnv("NOTION_SPRINT_DATABASE_ID"),
+      inboxDatabaseId: requireEnv("NOTION_INBOX_DATABASE_ID"),
     },
     server: {
       port: parseInt(optionalEnv("PORT", "3434"), 10),

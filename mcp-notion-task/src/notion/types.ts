@@ -135,3 +135,54 @@ export interface AddLogInput {
   author: string;                // 작성자 이름 또는 이메일
   logType?: LogType;
 }
+
+// ============================================================================
+// Inbox (문서) 관련 타입
+// ============================================================================
+
+/**
+ * Inbox 아이템 엔티티 (Notion 페이지를 파싱한 결과)
+ */
+export interface InboxItem {
+  id: string;                      // Notion 페이지 ID (UUID)
+  title: string;                   // 제목
+  authors: string[];               // 작성자 이메일 목록
+  tags: string[];                  // 태그
+  createdBy?: string;              // 생성자 (읽기 전용)
+  createdTime: string;             // ISO 8601
+  lastEditedTime: string;          // ISO 8601
+}
+
+/**
+ * Inbox 아이템 생성 입력
+ */
+export interface CreateInboxInput {
+  title: string;
+  authors?: string[];              // 작성자 이메일 배열
+  tags?: string[];
+  content?: string;                // 초기 본문 (Markdown)
+}
+
+/**
+ * Inbox 아이템 업데이트 입력
+ */
+export interface UpdateInboxInput {
+  title?: string;
+  authors?: string[];
+  tags?: string[];
+}
+
+/**
+ * Inbox 목록 조회 필터
+ */
+export interface InboxListFilter {
+  author?: string;                 // 작성자 이메일
+  tag?: string;                    // 태그 (하나)
+}
+
+/**
+ * Inbox 목록 조회 정렬 기준
+ */
+export type InboxSortBy =
+  | "created_time"
+  | "last_edited_time";

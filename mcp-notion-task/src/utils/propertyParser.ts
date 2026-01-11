@@ -3,7 +3,13 @@
  * Notion API 응답에서 속성 값을 추출하는 헬퍼 함수들입니다.
  */
 
-import type { Task, TaskStatus, IssueType, Priority } from "../notion/types.js";
+import type {
+  Task,
+  TaskStatus,
+  IssueType,
+  Priority,
+  InboxItem,
+} from "../notion/types.js";
 
 // Notion API 응답 타입 (간소화)
 type NotionPage = {
@@ -129,4 +135,43 @@ export function parseTaskFromPage(page: NotionPage): Task {
  */
 export function parseTasksFromPages(pages: NotionPage[]): Task[] {
   return pages.map(parseTaskFromPage);
+}
+
+// ============================================================================
+// Inbox (문서) 파싱 함수
+// ============================================================================
+
+/**
+ * Created By 속성에서 사용자 이메일 추출
+ */
+export function parseCreatedBy(property: any): string | undefined {
+  const user = property?.created_by;
+  if (user?.type === "person" && user.person?.email) {
+    return user.person.email;
+  }
+  return undefined;
+}
+
+/**
+ * Notion 페이지를 InboxItem으로 변환
+ */
+export function parseInboxFromPage(page: NotionPage): InboxItem {
+  const props = page.properties;
+
+  return {
+    id: page.id,
+    title: parseTitle(props["제목"]),
+    authors: parsePeople(props["작성자"]),
+    tags: parseMultiSelect(props["태그"]),
+    createdBy: parseCreatedBy(props["생성자"]),
+    createdTime: page.created_time,
+    lastEditedTime: page.last_edited_time,
+  };
+}
+
+/**
+ * Inbox 목록을 InboxItem 배열로 변환
+ */
+export function parseInboxFromPages(pages: NotionPage[]): InboxItem[] {
+  return pages.map(parseInboxFromPage);
 }
