@@ -98,8 +98,34 @@
 - TC4: 인증 + useSessionUser=false (전체)
 - TC5: 인증 + assignee 지정 (특정 사용자)
 
-**실행 완료**: TC1, TC2
+**실행 완료**: TC1, TC2 (미인증 세션)
 **실행 대기**: TC3, TC4, TC5 (AUTH_USERS 설정 필요)
+
+### 실 데이터 검증 (2026-01-11)
+
+**테스트 방법**: Notion API 직접 호출 (`test-list-direct.mjs`)
+
+#### 검증 항목
+
+| 테스트 | includeSubAssignee | 결과 | 작업 수 |
+|--------|-------------------|------|---------|
+| TC1: 주 담당자만 | false | ✅ 성공 | 10개 (모두 윤도선 포함) |
+| TC2: 주+부담당자 | true | ✅ 성공 | 10개 (부담당자 2개 추가) |
+| TC3: 전체 조회 | - | ✅ 성공 | 10개 (다양한 담당자) |
+
+#### 주요 발견사항
+
+1. **Notion People 필터 동작**:
+   - `people: { contains: uuid }`는 해당 사람이 **배열에 포함된** 모든 페이지를 반환
+   - 담당자가 [차봉희, 윤도선]인 경우, 윤도선 UUID로 필터링하면 매칭됨
+
+2. **includeSubAssignee 로직 검증**:
+   - `false`: "담당자" 속성만 필터링 (10개)
+   - `true`: "담당자" OR "담당자(부)" 필터링 (12개, 부담당자 2개 추가)
+
+3. **실 데이터 예시**:
+   - MKL-830: 담당자=신이삭, **담당자(부)=윤도선** (includeSubAssignee=true에만 포함)
+   - MKL-690: 담당자=차봉희,윤도선 (모든 필터에 포함)
 
 ---
 
@@ -111,6 +137,9 @@
 - [x] assignee 우선순위 로직 정상
 - [x] 미인증 세션에서 전체 조회
 - [x] resolveAssignee 함수 모든 경우의 수
+- [x] includeSubAssignee=false 주담당자만 필터링
+- [x] includeSubAssignee=true 주+부담당자 필터링
+- [x] Notion People 필터 동작 검증
 
 ### 코드 품질
 
