@@ -1,8 +1,8 @@
 services:
   mcp-notion-task:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: mcp-notion-task/Dockerfile
     ports:
       - "3434:3434"
     environment:
