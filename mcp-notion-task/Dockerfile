@@ -25,7 +25,7 @@ WORKDIR /app
 # 모노레포 루트 의존성 복사 및 프로덕션 설치
 COPY package*.json ./
 COPY packages ./packages
-RUN npm install --omit=dev && npm cache clean --force
+RUN npm install --omit=dev --ignore-scripts && npm cache clean --force
 
 # mcp-notion-task 설정 복사
 WORKDIR /app/mcp-notion-task
