@@ -5,6 +5,7 @@ WORKDIR /app
 
 # 모노레포 루트 의존성 복사 및 설치
 COPY package*.json ./
+COPY tsconfig.json ./
 COPY packages ./packages
 RUN npm install && npm cache clean --force
 
