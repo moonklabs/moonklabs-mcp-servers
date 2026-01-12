@@ -8,7 +8,6 @@ import { z } from "zod";
 import { addTaskLogAfterChangelog } from "./addLogLogic.js";
 import { formatSuccess, formatError } from "../../utils/responseFormatter.js";
 import type { LogType, LOG_TYPE_ICONS } from "../../notion/types.js";
-import { getUserFromSession } from "../index.js";
 
 /**
  * 진행 로그 추가 도구를 등록합니다.
@@ -18,7 +17,7 @@ export function registerAddLogTool(server: McpServer): void {
     "notion-task-add-log",
     {
       description:
-        "작업 중 진행상황 기록. 인증된 세션에서는 author 생략 가능.",
+        "작업 중 진행상황 기록.",
       inputSchema: z.object({
         id: z.string().describe("작업 ID (예: MKL-123) 또는 페이지 ID (UUID)"),
         content: z
@@ -26,8 +25,7 @@ export function registerAddLogTool(server: McpServer): void {
           .describe("로그 내용 (Markdown 형식, 예: '- API 구현 완료\\n- 테스트 작성 중')"),
         author: z
           .string()
-          .optional()
-          .describe("작성자 (인증된 세션에서는 자동 주입)"),
+          .describe("작성자 이름 또는 사용자 ID"),
         logType: z
           .enum(["progress", "blocker", "decision", "note"])
           .default("progress")
@@ -36,31 +34,12 @@ export function registerAddLogTool(server: McpServer): void {
           ),
       }),
     },
-    async ({ id, content, author, logType }, extra) => {
-      // 세션에서 사용자 정보 가져오기
-      const sessionUser = getUserFromSession(extra?.sessionId);
-
-      // author 우선순위: 파라미터 > 세션 name > 세션 email > 에러
-      const resolvedAuthor = author || sessionUser?.name || sessionUser?.email;
-
-      if (!resolvedAuthor) {
-        return {
-          content: [
-            {
-              type: "text",
-              text: formatError(
-                "author가 필요합니다. 인증하거나 author 파라미터를 전달해주세요."
-              ),
-            },
-          ],
-          isError: true,
-        };
-      }
+    async ({ id, content, author, logType }) => {
       try {
         const result = await addTaskLogAfterChangelog(
           id,
           content,
-          resolvedAuthor,
+          author,
           logType as LogType
         );
 

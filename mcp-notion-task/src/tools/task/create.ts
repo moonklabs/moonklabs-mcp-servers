@@ -7,7 +7,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { createTask } from "./createLogic.js";
 import { formatSuccess, formatError } from "../../utils/responseFormatter.js";
-import { getUserFromSession } from "../index.js";
+import { userIdToEmail } from "../../utils/userIdToEmail.js";
 import type { CreateTaskInput } from "../../notion/types.js";
 
 /**
@@ -25,14 +25,10 @@ export function registerCreateTool(server: McpServer): void {
           .enum(["시작 전", "일시중지", "진행 중", "완료", "보관됨", "상담완료"])
           .default("시작 전")
           .describe("초기 상태 (기본: 시작 전)"),
-        assignee: z
+        userId: z
           .string()
           .optional()
-          .describe("담당자 이메일 주소"),
-        useSessionUser: z
-          .boolean()
-          .default(true)
-          .describe("인증된 세션의 이메일로 담당자 지정 (기본: true). assignee 지정 시 무시됨"),
+          .describe("담당자 사용자 ID (이메일 앞부분, 예: hong). 미지정 시 담당자 없음"),
         issueType: z
           .enum(["버그", "개선", "고객요청", "작업", "미팅", "CS"])
           .optional()
@@ -67,8 +63,7 @@ export function registerCreateTool(server: McpServer): void {
     async ({
       title,
       status,
-      assignee,
-      useSessionUser,
+      userId,
       issueType,
       priority,
       dueDate,
@@ -77,18 +72,10 @@ export function registerCreateTool(server: McpServer): void {
       memo,
       sprintId,
       content,
-    }, extra) => {
+    }) => {
       try {
-        // 세션에서 사용자 정보 가져오기
-        const sessionUser = getUserFromSession(extra?.sessionId);
-
-        // 담당자 해석: assignee 명시 > 세션 사용자 > 미지정
-        let resolvedAssignee: string | undefined;
-        if (assignee) {
-          resolvedAssignee = assignee;
-        } else if (useSessionUser && sessionUser?.email) {
-          resolvedAssignee = sessionUser.email;
-        }
+        // userId를 이메일로 변환
+        const resolvedAssignee = userId ? userIdToEmail(userId) : undefined;
 
         const input: CreateTaskInput = {
           title,

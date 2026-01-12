@@ -39,12 +39,20 @@ npm run inspector
 
 `.env` 파일 필요:
 ```bash
-NOTION_API_TOKEN=secret_xxx      # Notion Integration Token (필수)
-TASK_DATABASE_ID=xxx             # MKL작업 데이터베이스 ID (필수)
-SPRINT_DATABASE_ID=xxx           # 스프린트 데이터베이스 ID (필수)
+NOTION_TOKEN=secret_xxx               # Notion Integration Token (필수)
+NOTION_TASK_DATABASE_ID=xxx          # MKL작업 데이터베이스 ID (필수)
+NOTION_SPRINT_DATABASE_ID=xxx        # 스프린트 데이터베이스 ID (필수)
+NOTION_INBOX_DATABASE_ID=xxx         # Inbox 데이터베이스 ID (필수)
+EMAIL_DOMAIN=moonklabs.com           # 사용자 이메일 도메인 (필수)
+PORT=3434                            # HTTP 서버 포트 (선택, 기본: 3434)
+HOST=0.0.0.0                         # HTTP 서버 호스트 (선택, 기본: 0.0.0.0)
+LOG_LEVEL=info                       # 로그 레벨 (선택, 기본: info)
 ```
 
 **주의**: 서버 시작 시 환경변수가 검증됩니다. 누락 시 즉시 실패합니다.
+
+**EMAIL_DOMAIN**: 각 도구에서 userId (이메일 앞부분, 예: "hong")를 전체 이메일로 변환할 때 사용됩니다.
+- 예: userId "hong" + EMAIL_DOMAIN "moonklabs.com" → "hong@moonklabs.com"
 
 ## 아키텍처
 
@@ -198,3 +206,5 @@ npm run test:coverage    # 커버리지 확인
 - `GET /health` - 헬스 체크
 
 세션 ID는 `mcp-session-id` 헤더로 관리됩니다.
+
+**인증**: 토큰 기반 인증이 제거되었습니다. 모든 도구는 userId 파라미터를 통해 사용자를 식별합니다.

@@ -8,9 +8,8 @@ import { z } from "zod";
 import { listTasks } from "./listLogic.js";
 import { formatTaskList, formatError } from "../../utils/responseFormatter.js";
 import { emailToUserId } from "../../utils/emailToUserId.js";
+import { userIdToEmail } from "../../utils/userIdToEmail.js";
 import type { TaskStatus, Priority, IssueType, TaskSortBy } from "../../notion/types.js";
-import { getUserFromSession } from "../index.js";
-import { resolveAssignee } from "./listHelpers.js";
 
 /**
  * 작업 목록 조회 도구를 등록합니다.
@@ -26,14 +25,10 @@ export function registerListTool(server: McpServer): void {
           .enum(["시작 전", "일시중지", "진행 중", "완료", "보관됨", "상담완료"])
           .optional()
           .describe("상태 필터"),
-        assignee: z
+        userId: z
           .string()
           .optional()
-          .describe("담당자 이메일 주소"),
-        useSessionUser: z
-          .boolean()
-          .default(true)
-          .describe("인증된 세션의 이메일로 필터링 (기본: true). assignee 지정 시 무시됨"),
+          .describe("담당자 사용자 ID (이메일 앞부분, 예: hong). 미지정 시 전체 조회"),
         includeSubAssignee: z
           .boolean()
           .default(true)
@@ -72,8 +67,7 @@ export function registerListTool(server: McpServer): void {
     },
     async ({
       status,
-      assignee,
-      useSessionUser,
+      userId,
       includeSubAssignee,
       sprintId,
       projectId,
@@ -82,21 +76,13 @@ export function registerListTool(server: McpServer): void {
       sortBy,
       sortDirection,
       pageSize,
-    }, extra) => {
-      // 세션에서 사용자 정보 가져오기
-      const sessionUser = getUserFromSession(extra?.sessionId);
-
-      // assignee 해석: assignee 명시 > 세션 사용자 > 전체 조회
-      const resolvedAssignee = resolveAssignee(
-        assignee,
-        useSessionUser,
-        sessionUser?.email
-      );
+    }) => {
       try {
-        // 이메일을 UUID로 변환 (Notion API people 필터는 UUID만 허용)
+        // userId를 이메일로 변환 후 UUID로 변환 (Notion API people 필터는 UUID만 허용)
         let resolvedAssigneeId: string | undefined;
-        if (resolvedAssignee) {
-          resolvedAssigneeId = await emailToUserId(resolvedAssignee);
+        if (userId) {
+          const email = userIdToEmail(userId);
+          resolvedAssigneeId = await emailToUserId(email);
         }
 
         const tasks = await listTasks(

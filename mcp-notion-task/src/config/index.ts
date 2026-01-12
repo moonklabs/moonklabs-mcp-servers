@@ -38,9 +38,8 @@ export interface Config {
     host: string;
     logLevel: LogLevel;
   };
-  auth: {
-    required: boolean;
-    usersConfigured: boolean;
+  user: {
+    emailDomain: string;
   };
 }
 
@@ -75,9 +74,8 @@ export function loadConfig(): Config {
       host: optionalEnv("HOST", "0.0.0.0"),
       logLevel: parseLogLevel(process.env.LOG_LEVEL),
     },
-    auth: {
-      required: process.env.AUTH_REQUIRED !== "false",
-      usersConfigured: !!process.env.AUTH_USERS,
+    user: {
+      emailDomain: requireEnv("EMAIL_DOMAIN"),
     },
   };
 }
