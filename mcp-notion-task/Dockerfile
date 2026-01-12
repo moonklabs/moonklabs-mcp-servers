@@ -25,12 +25,12 @@ WORKDIR /app
 
 # 모노레포 루트 의존성 복사 및 프로덕션 설치
 COPY package*.json ./
+COPY mcp-notion-task/package.json ./mcp-notion-task/
 COPY packages ./packages
 RUN npm install --omit=dev --ignore-scripts && npm cache clean --force
 
-# mcp-notion-task 설정 복사
+# mcp-notion-task로 이동
 WORKDIR /app/mcp-notion-task
-COPY mcp-notion-task/package.json ./
 
 # 빌드된 파일 복사
 COPY --from=builder /app/mcp-notion-task/dist ./dist
