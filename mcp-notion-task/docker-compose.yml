@@ -1,3 +1,8 @@
+networks:
+  backend:
+    name: vanilla_backend
+    external: true
+
 services:
   mcp-notion-task:
     build:
@@ -15,6 +20,8 @@ services:
     env_file:
       - .env
     restart: unless-stopped
+    networks:
+      - backend
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3434/health"]
       interval: 30s
