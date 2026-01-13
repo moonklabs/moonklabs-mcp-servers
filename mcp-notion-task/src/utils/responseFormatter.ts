@@ -20,7 +20,7 @@ export function formatTaskDetail(task: Task): string {
   }
   lines.push(`| 페이지ID | \`${task.id}\` |`);
   lines.push(`| 상태 | ${task.status} |`);
-  lines.push(`| 담당자(정) | ${task.assignees.join(", ") || "미지정"} |`);
+  lines.push(`| 담당자 | ${task.assignees.join(", ") || "미지정"} |`);
 
   if (task.subAssignees.length > 0) {
     lines.push(`| 담당자(부) | ${task.subAssignees.join(", ")} |`);

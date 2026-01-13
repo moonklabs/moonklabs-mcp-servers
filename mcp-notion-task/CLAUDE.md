@@ -143,7 +143,7 @@ server.registerTool("update-task-status", {
 | 이름 | title | 작업 제목 |
 | 상태 | select | 대기중, 진행중, 완료, 보류 |
 | 우선순위 | select | 높음, 중간, 낮음 |
-| 담당자(정) | people | 주 담당자 |
+| 담당자 | people | 주 담당자 |
 | 담당자(부) | people | 부 담당자 |
 | 스프린트 | relation | 스프린트 DB 연결 |
 | 마감일 | date | 마감일 |

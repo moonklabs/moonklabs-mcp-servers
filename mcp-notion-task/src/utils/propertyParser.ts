@@ -104,7 +104,7 @@ export function parseUniqueId(property: any): string | undefined {
  * - 작업 이름: title
  * - 작업 ID: unique_id (예: MKL-123)
  * - 상태: select
- * - 담당자(정): people
+ * - 담당자: people
  * - 담당자(부): people
  * - 스프린트: relation
  * - 프로젝트: relation

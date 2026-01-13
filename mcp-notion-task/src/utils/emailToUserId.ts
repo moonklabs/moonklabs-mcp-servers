@@ -122,9 +122,9 @@ async function refreshUserCache(): Promise<void> {
         if ("properties" in page) {
           const properties = page.properties;
 
-          // 담당자(정)
-          if (properties["담당자(정)"]?.type === "people") {
-            extractPeopleToCache(properties["담당자(정)"].people);
+          // 담당자
+          if (properties["담당자"]?.type === "people") {
+            extractPeopleToCache(properties["담당자"].people);
           }
 
           // 담당자(부)

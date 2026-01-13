@@ -36,7 +36,7 @@ describe("responseFormatter 유틸리티", () => {
       expect(result).toContain("## 테스트 작업");
       expect(result).toContain("| 페이지ID | `page-id-123` |");
       expect(result).toContain("| 상태 | 진행 중 |");
-      expect(result).toContain("| 담당자(정) | user@test.com |");
+      expect(result).toContain("| 담당자 | user@test.com |");
       expect(result).toContain("| 우선순위 | 높음 |");
       expect(result).toContain("| 마감일 | 2025-01-20 |");
       expect(result).toContain("| 태그 | API, 백엔드 |");
@@ -57,7 +57,7 @@ describe("responseFormatter 유틸리티", () => {
       const result = formatTaskDetail(minimalTask);
 
       expect(result).toContain("## 최소 작업");
-      expect(result).toContain("| 담당자(정) | 미지정 |");
+      expect(result).toContain("| 담당자 | 미지정 |");
       expect(result).not.toContain("| 우선순위 |");
       expect(result).not.toContain("| 마감일 |");
     });

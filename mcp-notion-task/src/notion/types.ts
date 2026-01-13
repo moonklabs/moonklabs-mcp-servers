@@ -54,7 +54,7 @@ export interface Task {
   taskId?: string;                 // 작업 ID (예: MKL-123) - unique_id 속성
   title: string;
   status: TaskStatus;
-  assignees: string[];           // 담당자(정) 이메일 목록
+  assignees: string[];           // 담당자 이메일 목록
   subAssignees: string[];        // 담당자(부) 이메일 목록
   sprintId?: string;             // 스프린트 페이지 ID
   sprintName?: string;           // 스프린트 이름 (조회 시 조인)

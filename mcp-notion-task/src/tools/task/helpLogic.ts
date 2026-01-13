@@ -192,8 +192,8 @@ notion-task-my-sprint({
 
 ### includeSubAssignee 옵션
 
-- \`true\`: 담당자(정) + 담당자(부) 모두 조회 (기본값)
-- \`false\`: 담당자(정)만 조회
+- \`true\`: 담당자 + 담당자(부) 모두 조회 (기본값)
+- \`false\`: 담당자만 조회
 
 ## 스프린트별 작업 목록 조회
 
