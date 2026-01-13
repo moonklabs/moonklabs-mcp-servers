@@ -6,21 +6,45 @@ import {
   refreshCache,
 } from "../emailToUserId.js";
 import * as clientModule from "../../notion/client.js";
+import * as configModule from "../../config/index.js";
 
 // Notion 클라이언트 모킹
 const mockUsersList = vi.fn();
+const mockDatabasesQuery = vi.fn();
 const mockNotionClient = {
   users: {
     list: mockUsersList,
+  },
+  databases: {
+    query: mockDatabasesQuery,
   },
 };
 
 vi.spyOn(clientModule, "getNotionClient").mockReturnValue(mockNotionClient as any);
 
+// Config 모킹
+vi.spyOn(configModule, "getConfig").mockReturnValue({
+  notionToken: "mock-token",
+  notionTaskDatabaseId: "mock-task-db-id",
+  notionSprintDatabaseId: "mock-sprint-db-id",
+  notionInboxDatabaseId: "mock-inbox-db-id",
+  emailDomain: "example.com",
+  port: 3434,
+  host: "0.0.0.0",
+  logLevel: "info",
+} as any);
+
 describe("emailToUserId 유틸리티", () => {
   beforeEach(() => {
     clearCache();
     vi.clearAllMocks();
+
+    // 기본 데이터베이스 쿼리 모킹 (빈 결과)
+    mockDatabasesQuery.mockResolvedValue({
+      results: [],
+      has_more: false,
+      next_cursor: null,
+    });
   });
 
   afterEach(() => {

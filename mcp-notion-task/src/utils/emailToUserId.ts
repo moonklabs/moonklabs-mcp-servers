@@ -6,6 +6,7 @@
 
 import { getNotionClient } from "../notion/client.js";
 import type { Client } from "@notionhq/client";
+import { getConfig } from "../config/index.js";
 
 /**
  * 사용자 정보 캐시 (메모리 기반)
@@ -50,8 +51,28 @@ export async function emailToUserId(email: string): Promise<string> {
 }
 
 /**
+ * people 속성에서 사용자 정보를 추출하여 캐시에 추가합니다.
+ * @param people - people 속성 배열
+ */
+function extractPeopleToCache(people: any[]): void {
+  for (const person of people || []) {
+    if (person.person?.email) {
+      const email = person.person.email.toLowerCase().trim();
+      // 기존 캐시에 없는 경우에만 추가 (멤버 우선)
+      if (!userCache.has(email)) {
+        userCache.set(email, {
+          id: person.id,
+          name: person.name || email,
+        });
+      }
+    }
+  }
+}
+
+/**
  * 사용자 캐시를 갱신합니다.
- * Notion users.list API로 전체 사용자를 조회합니다.
+ * 1. Notion users.list API로 워크스페이스 멤버 조회
+ * 2. MKL작업 데이터베이스에서 담당자(guest 포함) 정보 추출
  */
 async function refreshUserCache(): Promise<void> {
   const notion = getNotionClient();
@@ -59,7 +80,7 @@ async function refreshUserCache(): Promise<void> {
   try {
     userCache.clear();
 
-    // 페이지네이션 처리
+    // 1. 워크스페이스 멤버 조회 (users.list)
     let hasMore = true;
     let startCursor: string | undefined = undefined;
 
@@ -82,6 +103,39 @@ async function refreshUserCache(): Promise<void> {
 
       hasMore = response.has_more;
       startCursor = response.next_cursor || undefined;
+    }
+
+    // 2. 데이터베이스에서 담당자 정보 추출 (guest 포함)
+    const config = getConfig();
+    let dbHasMore = true;
+    let dbStartCursor: string | undefined = undefined;
+
+    while (dbHasMore) {
+      const dbResponse = await notion.databases.query({
+        database_id: config.notionTaskDatabaseId,
+        start_cursor: dbStartCursor,
+        page_size: 100,
+      });
+
+      // 각 페이지의 담당자 속성에서 people 정보 추출
+      for (const page of dbResponse.results) {
+        if ("properties" in page) {
+          const properties = page.properties;
+
+          // 담당자(정)
+          if (properties["담당자(정)"]?.type === "people") {
+            extractPeopleToCache(properties["담당자(정)"].people);
+          }
+
+          // 담당자(부)
+          if (properties["담당자(부)"]?.type === "people") {
+            extractPeopleToCache(properties["담당자(부)"].people);
+          }
+        }
+      }
+
+      dbHasMore = dbResponse.has_more;
+      dbStartCursor = dbResponse.next_cursor || undefined;
     }
 
     cacheTimestamp = Date.now();
