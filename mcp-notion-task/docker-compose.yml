@@ -12,14 +12,6 @@ services:
       - "3434:3434"
     environment:
       - NODE_ENV=production
-      - PORT=3434
-      - HOST=0.0.0.0
-      - NOTION_TOKEN=${NOTION_TOKEN}
-      - NOTION_TASK_DATABASE_ID=${NOTION_TASK_DATABASE_ID}
-      - NOTION_SPRINT_DATABASE_ID=${NOTION_SPRINT_DATABASE_ID}
-      - NOTION_INBOX_DATABASE_ID=${NOTION_INBOX_DATABASE_ID}
-      - EMAIL_DOMAIN=${EMAIL_DOMAIN}
-      - LOG_LEVEL=${LOG_LEVEL:-info}
     env_file:
       - .env
     restart: unless-stopped
