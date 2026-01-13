@@ -5,7 +5,7 @@
 
 import { getNotionClient } from "../../notion/client.js";
 import { parseTaskFromPage } from "../../utils/propertyParser.js";
-import { buildSelectProperty } from "../../utils/propertyBuilder.js";
+import { buildStatusProperty } from "../../utils/propertyBuilder.js";
 import { resolveToPageId } from "../../utils/taskIdResolver.js";
 import type { Task, TaskStatus } from "../../notion/types.js";
 
@@ -25,7 +25,7 @@ export async function updateTaskStatus(
   const updatedPage = await notion.pages.update({
     page_id: pageId,
     properties: {
-      "상태": buildSelectProperty(status),
+      "상태": buildStatusProperty(status),
     },
   });
 

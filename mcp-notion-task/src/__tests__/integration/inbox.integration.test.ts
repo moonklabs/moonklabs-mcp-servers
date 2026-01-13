@@ -12,6 +12,9 @@ import { getInbox } from "../../tools/inbox/getLogic.js";
 import { createInbox } from "../../tools/inbox/createLogic.js";
 import { updateInbox } from "../../tools/inbox/updateLogic.js";
 
+// 유틸리티
+import { emailToUserId } from "../../utils/emailToUserId.js";
+
 // 테스트 후 정리
 afterAll(async () => {
   await cleanupTestData();
@@ -41,11 +44,14 @@ describe("Inbox 통합 테스트", () => {
 
       console.log(`✓ listInbox: ${items.length}개 항목 조회`);
       await delay(300);
-    }, 10000);
+    }, 30000);
 
     it("listInbox: 작성자 필터링", async () => {
+      // userId를 UUID로 변환
+      const authorId = await emailToUserId(TEST_CONFIG.testEmail);
+
       const items = await listInbox(
-        { author: TEST_CONFIG.testUserId },
+        { author: authorId },
         "last_edited_time",
         "descending",
         10
@@ -56,7 +62,7 @@ describe("Inbox 통합 테스트", () => {
 
       console.log(`✓ listInbox (author): ${items.length}개 항목 조회 (${TEST_CONFIG.testUserId})`);
       await delay(300);
-    }, 10000);
+    }, 60000);
 
     it("listInbox: 태그 필터링", async () => {
       const items = await listInbox(
@@ -76,7 +82,7 @@ describe("Inbox 통합 테스트", () => {
 
       console.log(`✓ listInbox (tag): ${items.length}개 "테스트" 태그 항목 조회`);
       await delay(300);
-    }, 10000);
+    }, 30000);
 
     it("getInbox: 페이지 ID로 상세 조회", async () => {
       // 먼저 목록에서 하나 가져오기
@@ -96,7 +102,7 @@ describe("Inbox 통합 테스트", () => {
 
       console.log(`✓ getInbox: "${detail.title}" 상세 조회 (${detail.content.length}자)`);
       await delay(300);
-    }, 10000);
+    }, 30000);
   });
 
   describe("생성/수정 테스트", () => {
@@ -121,7 +127,7 @@ describe("Inbox 통합 테스트", () => {
 
       console.log(`✓ createInbox: "${item.title}" 생성 (${testInboxId})`);
       await delay(500);
-    }, 15000);
+    }, 30000);
 
     it("updateInbox: 제목 및 태그 수정", async () => {
       expect(testInboxId).toBeDefined();
@@ -138,13 +144,13 @@ describe("Inbox 통합 테스트", () => {
 
       console.log(`✓ updateInbox: 제목 및 태그 수정 완료`);
       await delay(500);
-    }, 10000);
+    }, 30000);
 
     it("updateInbox: 작성자 수정", async () => {
       expect(testInboxId).toBeDefined();
 
       const updatedItem = await updateInbox(testInboxId, {
-        authors: [TEST_CONFIG.testUserId, "isaacshin"],
+        authors: [TEST_CONFIG.testEmail, "isaacshin@moonklabs.com"],
       });
 
       expect(updatedItem).toBeDefined();
@@ -152,6 +158,6 @@ describe("Inbox 통합 테스트", () => {
 
       console.log(`✓ updateInbox: 작성자 추가 (${updatedItem.authors.length}명)`);
       await delay(300);
-    }, 10000);
+    }, 60000);
   });
 });

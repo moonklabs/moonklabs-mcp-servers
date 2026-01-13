@@ -41,6 +41,16 @@ export function buildSelectProperty(value: string) {
 }
 
 /**
+ * Status 속성 생성
+ * Notion의 status 타입 속성을 위한 빌더
+ */
+export function buildStatusProperty(value: string) {
+  return {
+    status: { name: value },
+  };
+}
+
+/**
  * Multi-select 속성 생성
  */
 export function buildMultiSelectProperty(values: string[]) {

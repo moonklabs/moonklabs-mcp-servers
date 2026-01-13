@@ -46,7 +46,7 @@ function buildFilter(filter?: TaskListFilter): any {
   if (filter.status) {
     conditions.push({
       property: "상태",
-      select: { equals: filter.status },
+      status: { equals: filter.status },
     });
   }
 

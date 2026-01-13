@@ -41,6 +41,14 @@ export function parseSelect(property: any): string | undefined {
 }
 
 /**
+ * Status 속성에서 값 추출
+ * Notion의 status 타입 속성 전용
+ */
+export function parseStatus(property: any): string | undefined {
+  return property?.status?.name;
+}
+
+/**
  * Multi-select 속성에서 값 배열 추출
  */
 export function parseMultiSelect(property: any): string[] {
@@ -114,7 +122,7 @@ export function parseTaskFromPage(page: NotionPage): Task {
     id: page.id,
     taskId: parseUniqueId(props["작업 ID"]),
     title: parseTitle(props["작업 이름"]),
-    status: (parseSelect(props["상태"]) || "시작 전") as TaskStatus,
+    status: (parseStatus(props["상태"]) || "시작 전") as TaskStatus,
     assignees: parsePeople(props["담당자"]),
     subAssignees: parsePeople(props["담당자(부)"]),
     sprintId: parseRelation(props["스프린트"]),

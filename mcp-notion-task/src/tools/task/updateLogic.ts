@@ -8,6 +8,7 @@ import { parseTaskFromPage } from "../../utils/propertyParser.js";
 import {
   buildTitleProperty,
   buildSelectProperty,
+  buildStatusProperty,
   buildMultiSelectProperty,
   buildDateProperty,
   buildNumberProperty,
@@ -71,7 +72,7 @@ function buildUpdateProperties(
   }
 
   if (updates.status !== undefined) {
-    props["상태"] = buildSelectProperty(updates.status);
+    props["상태"] = buildStatusProperty(updates.status);
   }
 
   if (updates.issueType !== undefined) {

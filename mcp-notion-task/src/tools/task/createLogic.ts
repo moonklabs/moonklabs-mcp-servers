@@ -8,6 +8,7 @@ import { parseTaskFromPage } from "../../utils/propertyParser.js";
 import {
   buildTitleProperty,
   buildSelectProperty,
+  buildStatusProperty,
   buildMultiSelectProperty,
   buildDateProperty,
   buildNumberProperty,
@@ -90,9 +91,9 @@ function buildCreateProperties(
   };
 
   if (input.status) {
-    props["상태"] = buildSelectProperty(input.status);
+    props["상태"] = buildStatusProperty(input.status);
   } else {
-    props["상태"] = buildSelectProperty("시작 전");
+    props["상태"] = buildStatusProperty("시작 전");
   }
 
   if (input.issueType) {

@@ -7,6 +7,8 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { listInbox } from "./listLogic.js";
 import { formatInboxList, formatError } from "../../utils/responseFormatter.js";
+import { emailToUserId } from "../../utils/emailToUserId.js";
+import { userIdToEmail } from "../../utils/userIdToEmail.js";
 import type { InboxSortBy } from "../../notion/types.js";
 
 /**
@@ -22,7 +24,7 @@ export function registerInboxListTool(server: McpServer): void {
         author: z
           .string()
           .optional()
-          .describe("작성자 이메일 주소"),
+          .describe("작성자 사용자 ID (이메일 앞부분, 예: hong)"),
         tag: z
           .string()
           .optional()
@@ -45,9 +47,16 @@ export function registerInboxListTool(server: McpServer): void {
     },
     async ({ author, tag, sortBy, sortDirection, pageSize }) => {
       try {
+        // author (userId)를 UUID로 변환 (Notion API people 필터는 UUID만 허용)
+        let authorUuid: string | undefined;
+        if (author) {
+          const email = userIdToEmail(author);
+          authorUuid = await emailToUserId(email);
+        }
+
         const items = await listInbox(
           {
-            author,
+            author: authorUuid,
             tag,
           },
           sortBy as InboxSortBy,

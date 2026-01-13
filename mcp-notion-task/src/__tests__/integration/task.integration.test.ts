@@ -44,7 +44,7 @@ describe("Task 통합 테스트", () => {
 
       console.log(`✓ listTasks: ${tasks.length}개 작업 조회`);
       await delay(300);
-    }, 10000);
+    }, 30000);
 
     it("listTasks: 상태 필터링", async () => {
       const tasks = await listTasks(
@@ -64,7 +64,7 @@ describe("Task 통합 테스트", () => {
 
       console.log(`✓ listTasks (status): ${tasks.length}개 "진행 중" 작업 조회`);
       await delay(300);
-    }, 10000);
+    }, 30000);
 
     it("listTasks: 담당자 필터링", async () => {
       // userId를 UUID로 변환
@@ -82,7 +82,7 @@ describe("Task 통합 테스트", () => {
 
       console.log(`✓ listTasks (assignee): ${tasks.length}개 작업 조회 (${TEST_CONFIG.testUserId})`);
       await delay(300);
-    }, 10000);
+    }, 60000);
 
     it("getTask: 페이지 ID로 조회", async () => {
       // 먼저 작업 목록에서 하나 가져오기
@@ -99,7 +99,7 @@ describe("Task 통합 테스트", () => {
 
       console.log(`✓ getTask: "${task.title}" 조회`);
       await delay(300);
-    }, 10000);
+    }, 30000);
 
     it("getTask: MKL-XXX 형식으로 조회", async () => {
       // 먼저 작업 목록에서 작업 ID가 있는 작업 찾기
@@ -119,7 +119,7 @@ describe("Task 통합 테스트", () => {
 
       console.log(`✓ getTask (${task.taskId}): "${task.title}" 조회`);
       await delay(300);
-    }, 10000);
+    }, 30000);
 
     it("getTaskContent: 본문 조회", async () => {
       // 작업 목록에서 하나 선택
@@ -134,7 +134,7 @@ describe("Task 통합 테스트", () => {
 
       console.log(`✓ getTaskContent: ${content.length}자 조회`);
       await delay(300);
-    }, 10000);
+    }, 30000);
 
     it("getMySprintTasks: 스프린트 작업 조회", async () => {
       const result = await getMySprintTasks(
@@ -152,7 +152,7 @@ describe("Task 통합 테스트", () => {
 
       console.log(`✓ getMySprintTasks: 스프린트 ${TEST_CONFIG.sprintNumber}, ${result.tasks.length}개 작업`);
       await delay(300);
-    }, 10000);
+    }, 60000);
 
     it("getHelpContent: 도움말 조회 (API 호출 없음)", () => {
       const helpAll = getHelpContent("all");
@@ -196,7 +196,7 @@ describe("Task 통합 테스트", () => {
 
       console.log(`✓ createTask: "${task.title}" 생성 (${testTaskId})`);
       await delay(500);
-    }, 15000);
+    }, 30000);
 
     it("updateTask: 제목 및 속성 수정", async () => {
       expect(testTaskId).toBeDefined();
@@ -204,7 +204,7 @@ describe("Task 통합 테스트", () => {
       const updatedTask = await updateTask(testTaskId, {
         title: `[통합테스트-수정됨] ${new Date().toISOString()}`,
         priority: "중간",
-        memo: "테스트 작업 수정 완료",
+        // memo: "테스트 작업 수정 완료", // 메모 속성이 데이터베이스에 없음
       });
 
       expect(updatedTask).toBeDefined();
@@ -213,7 +213,7 @@ describe("Task 통합 테스트", () => {
 
       console.log(`✓ updateTask: 제목 및 우선순위 수정`);
       await delay(500);
-    }, 10000);
+    }, 30000);
 
     it("updateTaskStatus: 상태 변경", async () => {
       expect(testTaskId).toBeDefined();
@@ -225,7 +225,7 @@ describe("Task 통합 테스트", () => {
 
       console.log(`✓ updateTaskStatus: "시작 전" → "진행 중"`);
       await delay(500);
-    }, 10000);
+    }, 30000);
 
     it("addTaskLogAfterChangelog: 로그 추가", async () => {
       expect(testTaskId).toBeDefined();
@@ -242,15 +242,16 @@ describe("Task 통합 테스트", () => {
 
       console.log(`✓ addTaskLogAfterChangelog: 로그 추가 완료 (${result.blockCount}개 블록)`);
       await delay(500);
-    }, 10000);
+    }, 30000);
 
     it("archiveTask: 작업 보관", async () => {
       expect(testTaskId).toBeDefined();
 
-      await expect(archiveTask(testTaskId)).resolves.toBeUndefined();
+      const result = await archiveTask(testTaskId);
+      expect(result).toEqual({ success: true });
 
       console.log(`✓ archiveTask: 작업 보관 완료 (${testTaskId})`);
       await delay(300);
-    }, 10000);
+    }, 30000);
   });
 });
