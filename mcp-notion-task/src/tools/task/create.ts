@@ -8,6 +8,7 @@ import { z } from "zod";
 import { createTask } from "./createLogic.js";
 import { formatSuccess, formatError } from "../../utils/responseFormatter.js";
 import { userIdToEmail } from "../../utils/userIdToEmail.js";
+import { getUserIdFromHeader } from "../../utils/headerUtils.js";
 import type { CreateTaskInput } from "../../notion/types.js";
 
 /**
@@ -28,7 +29,7 @@ export function registerCreateTool(server: McpServer): void {
         userId: z
           .string()
           .optional()
-          .describe("담당자 사용자 ID (이메일 앞부분, 예: hong). 미지정 시 담당자 없음"),
+          .describe("담당자 사용자 ID (이메일 앞부분, 예: hong). 미지정 시 X-User-Id 헤더에서 읽거나 담당자 없음"),
         issueType: z
           .enum(["버그", "개선", "고객요청", "작업", "미팅", "CS"])
           .optional()
@@ -72,10 +73,13 @@ export function registerCreateTool(server: McpServer): void {
       memo,
       sprintId,
       content,
-    }) => {
+    }, extra) => {
       try {
+        // userId 파라미터 → X-User-Id 헤더 fallback
+        const resolvedUserId = userId || getUserIdFromHeader(extra);
+
         // userId를 이메일로 변환
-        const resolvedAssignee = userId ? userIdToEmail(userId) : undefined;
+        const resolvedAssignee = resolvedUserId ? userIdToEmail(resolvedUserId) : undefined;
 
         const input: CreateTaskInput = {
           title,

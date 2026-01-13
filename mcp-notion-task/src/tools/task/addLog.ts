@@ -7,6 +7,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { addTaskLogAfterChangelog } from "./addLogLogic.js";
 import { formatSuccess, formatError } from "../../utils/responseFormatter.js";
+import { getUserIdFromHeader } from "../../utils/headerUtils.js";
 import type { LogType, LOG_TYPE_ICONS } from "../../notion/types.js";
 
 /**
@@ -25,7 +26,8 @@ export function registerAddLogTool(server: McpServer): void {
           .describe("로그 내용 (Markdown 형식, 예: '- API 구현 완료\\n- 테스트 작성 중')"),
         author: z
           .string()
-          .describe("작성자 이름 또는 사용자 ID"),
+          .optional()
+          .describe("작성자 이름 또는 사용자 ID. 미지정 시 X-User-Id 헤더에서 읽음"),
         logType: z
           .enum(["progress", "blocker", "decision", "note"])
           .default("progress")
@@ -34,12 +36,27 @@ export function registerAddLogTool(server: McpServer): void {
           ),
       }),
     },
-    async ({ id, content, author, logType }) => {
+    async ({ id, content, author, logType }, extra) => {
       try {
+        // author 파라미터 → X-User-Id 헤더 fallback
+        const resolvedAuthor = author || getUserIdFromHeader(extra);
+
+        if (!resolvedAuthor) {
+          return {
+            content: [
+              {
+                type: "text",
+                text: formatError("author 파라미터 또는 X-User-Id 헤더가 필요합니다."),
+              },
+            ],
+            isError: true,
+          };
+        }
+
         const result = await addTaskLogAfterChangelog(
           id,
           content,
-          author,
+          resolvedAuthor,
           logType as LogType
         );
 

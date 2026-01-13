@@ -9,6 +9,7 @@ import { getMySprintTasks } from "./mySprintLogic.js";
 import { formatSprintTaskList, formatError } from "../../utils/responseFormatter.js";
 import type { TaskStatus } from "../../notion/types.js";
 import { userIdToEmail } from "../../utils/userIdToEmail.js";
+import { getUserIdFromHeader } from "../../utils/headerUtils.js";
 
 /**
  * 내 스프린트 작업 조회 도구를 등록합니다.
@@ -22,7 +23,8 @@ export function registerMySprintTool(server: McpServer): void {
       inputSchema: z.object({
         userId: z
           .string()
-          .describe("담당자 사용자 ID (이메일 앞부분, 예: hong)"),
+          .optional()
+          .describe("담당자 사용자 ID (이메일 앞부분, 예: hong). 미지정 시 X-User-Id 헤더에서 읽음"),
         sprintNumber: z
           .number()
           .int()
@@ -45,9 +47,24 @@ export function registerMySprintTool(server: McpServer): void {
           .describe("최대 작업 수 (기본값: 50, 최대: 100)"),
       }),
     },
-    async ({ userId, sprintNumber, status, includeSubAssignee, pageSize }) => {
+    async ({ userId, sprintNumber, status, includeSubAssignee, pageSize }, extra) => {
+      // userId 파라미터 → X-User-Id 헤더 fallback
+      const resolvedUserId = userId || getUserIdFromHeader(extra);
+
+      if (!resolvedUserId) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: formatError("userId 파라미터 또는 X-User-Id 헤더가 필요합니다."),
+            },
+          ],
+          isError: true,
+        };
+      }
+
       // userId를 이메일로 변환
-      const email = userIdToEmail(userId);
+      const email = userIdToEmail(resolvedUserId);
       try {
         const { tasks, sprintId } = await getMySprintTasks(
           email,
@@ -71,7 +88,7 @@ export function registerMySprintTool(server: McpServer): void {
           };
         }
 
-        const header = `## 스프린트 ${sprintNumber} - ${userId}님의 작업\n\n`;
+        const header = `## 스프린트 ${sprintNumber} - ${resolvedUserId}님의 작업\n\n`;
         const formatted = header + formatSprintTaskList(tasks);
 
         return {

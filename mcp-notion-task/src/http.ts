@@ -105,7 +105,7 @@ function createApp(): express.Application {
     res.header("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
     res.header(
       "Access-Control-Allow-Headers",
-      "Content-Type, mcp-session-id, Last-Event-ID"
+      "Content-Type, mcp-session-id, Last-Event-ID, X-User-Id"
     );
     next();
   });

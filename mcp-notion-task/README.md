@@ -103,7 +103,7 @@ npm test
 
 ## 사용자 식별
 
-모든 도구는 `userId` 파라미터를 통해 사용자를 식별합니다.
+모든 도구는 `userId` 또는 `author` 파라미터를 통해 사용자를 식별합니다.
 
 ### userId 형식
 
@@ -111,35 +111,69 @@ npm test
 - 입력: `"hong"`
 - 변환: `"hong@moonklabs.com"` (EMAIL_DOMAIN 환경변수 사용)
 
+### X-User-Id 헤더를 통한 자동 주입 (권장)
+
+**Claude Desktop HTTP MCP 설정**에서 `X-User-Id` 헤더를 추가하면 **모든 도구에서 userId 파라미터를 생략**할 수 있습니다:
+
+```json
+{
+  "mcpServers": {
+    "notion-task": {
+      "type": "http",
+      "url": "http://your-server:3434/mcp",
+      "headers": {
+        "X-User-Id": "dosunyun"
+      }
+    }
+  }
+}
+```
+
+**효과:**
+- `notion-task-my-sprint`: userId 파라미터 생략 가능
+- `notion-task-create`: userId 파라미터 생략 가능 (담당자 자동 설정)
+- `notion-task-list`: userId 파라미터 생략 가능 (전체 조회 가능)
+- `notion-task-add-log`: author 파라미터 생략 가능 (헤더의 userId 사용)
+- `notion-inbox-create`: userIds 파라미터 생략 가능 (작성자 자동 설정)
+
+**파라미터 우선순위:** 도구 호출 시 명시적으로 userId/author를 전달하면 헤더 값보다 파라미터가 우선됩니다.
+
 ### 사용 예시
 
 ```javascript
-// 내 스프린트 작업 조회
+// 헤더가 설정된 경우 (X-User-Id: "hong")
+// 내 스프린트 작업 조회 - userId 생략
 {
   "name": "notion-task-my-sprint",
   "arguments": {
-    "userId": "hong",
     "sprintNumber": 50
   }
 }
 
-// 진행 로그 추가
+// 진행 로그 추가 - author 생략
 {
   "name": "notion-task-add-log",
   "arguments": {
     "pageId": "xxx",
-    "content": "작업 완료",
-    "author": "홍길동"
+    "content": "작업 완료"
   }
 }
 
-// Inbox 문서 생성
+// Inbox 문서 생성 - userIds 생략 (헤더의 userId를 작성자로 설정)
 {
   "name": "notion-inbox-create",
   "arguments": {
     "title": "회의록",
-    "userIds": ["hong", "kim"],
     "content": "# 회의 내용..."
+  }
+}
+
+// 헤더가 없거나 다른 사용자를 지정하는 경우
+{
+  "name": "notion-task-my-sprint",
+  "arguments": {
+    "userId": "kim",  // 파라미터가 헤더보다 우선
+    "sprintNumber": 50
   }
 }
 ```
@@ -168,6 +202,7 @@ npm test
 
 ### Claude Desktop 설정 (원격 HTTP 서버)
 
+**기본 설정:**
 ```json
 {
   "mcpServers": {
@@ -181,6 +216,22 @@ npm test
   }
 }
 ```
+
+**X-User-Id 헤더 설정 (권장):**
+```json
+{
+  "mcpServers": {
+    "notion-task": {
+      "type": "http",
+      "url": "http://your-server:3434/mcp",
+      "headers": {
+        "X-User-Id": "dosunyun"
+      }
+    }
+  }
+}
+```
+> 헤더를 설정하면 모든 도구에서 userId/author 파라미터를 생략할 수 있습니다.
 
 ### HTTP 서버 배포
 
@@ -222,7 +273,24 @@ curl -X POST http://your-server:3434/mcp \
   -H "mcp-session-id: <session-id>" \
   -d '{"jsonrpc": "2.0", "method": "notifications/initialized"}'
 
-# 3. 도구 호출 (userId 파라미터 필수!)
+# 3. 도구 호출 (X-User-Id 헤더 권장, 또는 userId 파라미터 사용)
+# 방법 1: X-User-Id 헤더 사용 (권장)
+curl -X POST http://your-server:3434/mcp \
+  -H "mcp-session-id: <session-id>" \
+  -H "X-User-Id: hong" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 2,
+    "method": "tools/call",
+    "params": {
+      "name": "notion-task-my-sprint",
+      "arguments": {
+        "sprintNumber": 50
+      }
+    }
+  }'
+
+# 방법 2: userId 파라미터 사용 (헤더 없이)
 curl -X POST http://your-server:3434/mcp \
   -H "mcp-session-id: <session-id>" \
   -d '{
@@ -268,28 +336,28 @@ docker logs mcp-notion-task
 ### 도구 호출 예시
 
 ```javascript
-// 내 스프린트 작업 조회 (userId 필수)
+// X-User-Id 헤더가 설정된 경우
+
+// 내 스프린트 작업 조회 (userId 생략 가능)
 {
   "name": "notion-task-my-sprint",
   "arguments": {
-    "userId": "hong",
     "sprintNumber": 50,
     "status": "진행 중"  // optional
   }
 }
 
-// 진행 로그 추가 (author 필수)
+// 진행 로그 추가 (author 생략 가능, 헤더의 userId 사용)
 {
   "name": "notion-task-add-log",
   "arguments": {
     "pageId": "page-id-xxx",
     "content": "## 작업 완료\n- API 연동 완료\n- 테스트 통과",
-    "author": "홍길동",
     "logType": "progress"
   }
 }
 
-// 작업 상태 변경
+// 작업 상태 변경 (userId 불필요)
 {
   "name": "notion-task-update-status",
   "arguments": {
@@ -298,14 +366,34 @@ docker logs mcp-notion-task
   }
 }
 
-// 작업 생성 (userId 선택)
+// 작업 생성 (userId 생략 시 헤더 값 사용)
 {
   "name": "notion-task-create",
   "arguments": {
     "title": "새 작업",
-    "userId": "hong",
     "status": "시작 전",
     "priority": "높음"
+  }
+}
+
+// X-User-Id 헤더가 없는 경우 (또는 파라미터 우선)
+
+// userId 파라미터 명시
+{
+  "name": "notion-task-my-sprint",
+  "arguments": {
+    "userId": "hong",  // 필수 (헤더 없으면)
+    "sprintNumber": 50
+  }
+}
+
+// author 파라미터 명시
+{
+  "name": "notion-task-add-log",
+  "arguments": {
+    "pageId": "page-id-xxx",
+    "content": "작업 완료",
+    "author": "hong"  // 필수 (헤더 없으면)
   }
 }
 ```
@@ -370,9 +458,10 @@ src/
 | DELETE | `/mcp` | 세션 종료 |
 | GET | `/health` | 헬스 체크 (활성 세션 수 포함) |
 
-**헤더 요구사항:**
-- `mcp-session-id: <uuid>` - 세션 ID (initialize 후 사용)
-- `Content-Type: application/json` - JSON 요청
+**헤더:**
+- `mcp-session-id: <uuid>` - 세션 ID (initialize 후 사용, 필수)
+- `Content-Type: application/json` - JSON 요청 (필수)
+- `X-User-Id: <userId>` - 사용자 ID (선택, 설정 시 도구에서 userId/author 파라미터 생략 가능)
 
 ## Notion 데이터베이스 스키마
 

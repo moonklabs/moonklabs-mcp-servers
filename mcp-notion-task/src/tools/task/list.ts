@@ -9,6 +9,7 @@ import { listTasks } from "./listLogic.js";
 import { formatTaskList, formatError } from "../../utils/responseFormatter.js";
 import { emailToUserId } from "../../utils/emailToUserId.js";
 import { userIdToEmail } from "../../utils/userIdToEmail.js";
+import { getUserIdFromHeader } from "../../utils/headerUtils.js";
 import type { TaskStatus, Priority, IssueType, TaskSortBy } from "../../notion/types.js";
 
 /**
@@ -28,7 +29,7 @@ export function registerListTool(server: McpServer): void {
         userId: z
           .string()
           .optional()
-          .describe("담당자 사용자 ID (이메일 앞부분, 예: hong). 미지정 시 전체 조회"),
+          .describe("담당자 사용자 ID (이메일 앞부분, 예: hong). 미지정 시 X-User-Id 헤더에서 읽거나 전체 조회"),
         includeSubAssignee: z
           .boolean()
           .default(true)
@@ -76,12 +77,15 @@ export function registerListTool(server: McpServer): void {
       sortBy,
       sortDirection,
       pageSize,
-    }) => {
+    }, extra) => {
       try {
+        // userId 파라미터 → X-User-Id 헤더 fallback
+        const resolvedUserId = userId || getUserIdFromHeader(extra);
+
         // userId를 이메일로 변환 후 UUID로 변환 (Notion API people 필터는 UUID만 허용)
         let resolvedAssigneeId: string | undefined;
-        if (userId) {
-          const email = userIdToEmail(userId);
+        if (resolvedUserId) {
+          const email = userIdToEmail(resolvedUserId);
           resolvedAssigneeId = await emailToUserId(email);
         }
 
