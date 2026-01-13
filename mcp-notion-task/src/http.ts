@@ -225,6 +225,18 @@ async function main(): Promise<void> {
   initLogger(config.server.logLevel);
   const rootLog = getLogger();
 
+  // 환경 변수 확인 로그 (민감 정보는 마스킹)
+  rootLog.info("Environment variables loaded", {
+    NOTION_TOKEN: config.notionToken ? "***" + config.notionToken.slice(-4) : "NOT SET",
+    NOTION_TASK_DATABASE_ID: config.notionTaskDatabaseId || "NOT SET",
+    NOTION_SPRINT_DATABASE_ID: config.notionSprintDatabaseId || "NOT SET",
+    NOTION_INBOX_DATABASE_ID: config.notionInboxDatabaseId || "NOT SET",
+    EMAIL_DOMAIN: config.emailDomain || "NOT SET",
+    PORT: config.server.port,
+    HOST: config.server.host,
+    LOG_LEVEL: config.server.logLevel,
+  });
+
   rootLog.info(`${SERVER_NAME} v${SERVER_VERSION} starting...`, {
     logLevel: config.server.logLevel,
   });
