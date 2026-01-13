@@ -8,7 +8,7 @@ Notion MKL작업 데이터베이스 관리를 위한 MCP (Model Context Protocol
 - **작업 관리**: 생성, 수정, 상태 변경, 보관
 - **진행 로그**: 마크다운 형식의 진행 로그 추가
 - **페이지 내용**: Notion 페이지 본문 조회 (마크다운 변환)
-- **개발자 인증**: 토큰 기반 인증 및 자동 사용자 정보 주입
+- **Inbox 관리**: 문서 조회, 생성, 수정
 
 ## 빠른 시작
 
@@ -30,55 +30,60 @@ npm test
 
 ## 환경 변수
 
-### Notion 설정
+### 필수 설정
 
-| 변수명 | 필수 | 설명 |
-|--------|------|------|
-| `NOTION_TOKEN` | O | Notion Integration 토큰 |
-| `NOTION_TASK_DATABASE_ID` | O | MKL작업 데이터베이스 ID |
-| `NOTION_SPRINT_DATABASE_ID` | O | 스프린트 데이터베이스 ID |
+| 변수명 | 설명 |
+|--------|------|
+| `NOTION_TOKEN` | Notion Integration 토큰 |
+| `NOTION_TASK_DATABASE_ID` | MKL작업 데이터베이스 ID |
+| `NOTION_SPRINT_DATABASE_ID` | 스프린트 데이터베이스 ID |
+| `NOTION_INBOX_DATABASE_ID` | Inbox(문서) 데이터베이스 ID |
+| `EMAIL_DOMAIN` | 사용자 이메일 도메인 (예: `moonklabs.com`) |
 
-### 인증 설정 (HTTP 서버)
+### 선택 설정
 
-| 변수명 | 필수 | 기본값 | 설명 |
-|--------|------|--------|------|
-| `AUTH_USERS` | 권장 | - | 인증된 사용자 목록 (형식: `token:email:name,token:email:name,...`) |
-| `AUTH_REQUIRED` | X | `true` | 인증 필수 여부 (`false`면 익명 접근 허용) |
+| 변수명 | 기본값 | 설명 |
+|--------|--------|------|
+| `PORT` | `3434` | HTTP 서버 포트 |
+| `HOST` | `0.0.0.0` | HTTP 서버 호스트 |
+| `LOG_LEVEL` | `info` | 로그 레벨 (`debug`, `info`, `warn`, `error`, `silent`) |
 
-**예시:**
-```bash
-AUTH_USERS=abc123:user1@moonklabs.com:홍길동,def456:user2@moonklabs.com:김철수
-AUTH_REQUIRED=true
-```
+**EMAIL_DOMAIN 설명:**
+각 도구에서 userId (이메일 앞부분)를 전체 이메일로 변환할 때 사용됩니다.
+- 예: userId `"hong"` + EMAIL_DOMAIN `"moonklabs.com"` → `"hong@moonklabs.com"`
 
-## MCP 도구 (10개)
+## MCP 도구 (14개)
 
 ### 핵심 도구 (5개)
 
 | 도구 | 설명 | 주요 파라미터 |
 |------|------|---------------|
-| `notion-task-my-sprint` | 내 스프린트 작업 조회 | `sprintNumber`, `email?`*, `status?`, `includeSubAssignee?` |
+| `notion-task-my-sprint` | 내 스프린트 작업 조회 | `userId`, `sprintNumber`, `status?`, `includeSubAssignee?` |
 | `notion-task-update-status` | 작업 상태 빠르게 변경 | `pageId`, `status` |
-| `notion-task-add-log` | 진행 로그 추가 | `pageId`, `content`, `author?`*, `logType?` |
+| `notion-task-add-log` | 진행 로그 추가 | `pageId`, `content`, `author`, `logType?` |
 | `notion-task-get-content` | 페이지 내용 조회 | `pageId` |
 | `notion-task-update` | 작업 속성 수정 | `pageId`, `title?`, `status?`, `priority?`, ... |
 
-### 보조 도구 (4개)
+### 보조 도구 (5개)
 
 | 도구 | 설명 | 주요 파라미터 |
 |------|------|---------------|
 | `notion-task-get` | 작업 메타데이터 조회 | `pageId` |
-| `notion-task-list` | 작업 목록 검색 | `status?`, `assignee?`, `useSessionUser?` (기본: true)*, `sprintId?`, ... |
-| `notion-task-create` | 새 작업 생성 | `title`, `status?`, `issueType?`, `priority?`, ... |
+| `notion-task-list` | 작업 목록 검색 | `status?`, `userId?`, `sprintId?`, `sortBy?`, ... |
+| `notion-task-create` | 새 작업 생성 | `title`, `userId?`, `status?`, `issueType?`, `priority?`, ... |
 | `notion-task-archive` | 작업 보관 | `pageId` |
+| `notion-task-help` | 도구 사용법 안내 | `topic?` (`all`, `workflow`, `status`, `sprint`) |
 
-### 도움말 도구 (1개)
+### Inbox (문서) 도구 (4개)
 
 | 도구 | 설명 | 주요 파라미터 |
 |------|------|---------------|
-| `notion-task-help` | 도구 사용법 안내 | `topic?` (`all`, `workflow`, `status`, `sprint`) |
+| `notion-inbox-list` | Inbox 문서 목록 조회 | `tags?`, `sortBy?`, `limit?` |
+| `notion-inbox-get` | Inbox 문서 상세 조회 | `pageId` |
+| `notion-inbox-create` | 새 Inbox 문서 생성 | `title`, `userIds?`, `tags?`, `content?` |
+| `notion-inbox-update` | Inbox 문서 수정 | `pageId`, `title?`, `tags?`, `appendContent?` |
 
-**\* 인증된 세션에서는 자동 주입됨. `useSessionUser`는 기본값이 `true`로, 인증 시 자동으로 내 작업만 필터링됩니다. 전체 작업을 보려면 `useSessionUser: false`를 지정하거나 `assignee`로 다른 사용자를 지정하세요.**
+**userId 파라미터:** 이메일 앞부분만 입력하세요 (예: `"hong"` → `"hong@moonklabs.com"`)
 
 ### 상태 값
 
@@ -96,36 +101,48 @@ AUTH_REQUIRED=true
 - `decision` ✅ - 결정 사항
 - `note` 📌 - 메모
 
-## 인증 시스템
+## 사용자 식별
 
-HTTP 서버는 토큰 기반 인증을 지원합니다.
+모든 도구는 `userId` 파라미터를 통해 사용자를 식별합니다.
 
-### 관리자: 사용자 추가
+### userId 형식
 
-`.env` 파일에 사용자 정보 추가:
-```bash
-AUTH_USERS=token1:email1@example.com:이름1,token2:email2@example.com:이름2
-```
+**이메일 앞부분만 입력**하면 자동으로 전체 이메일로 변환됩니다:
+- 입력: `"hong"`
+- 변환: `"hong@moonklabs.com"` (EMAIL_DOMAIN 환경변수 사용)
 
-### 개발자: 인증 후 사용
+### 사용 예시
 
-인증된 세션에서는 `email`과 `author` 파라미터를 생략 가능:
 ```javascript
-// 인증 전: email 필수
-notion-task-my-sprint {"email": "user@example.com", "sprintNumber": 50}
+// 내 스프린트 작업 조회
+{
+  "name": "notion-task-my-sprint",
+  "arguments": {
+    "userId": "hong",
+    "sprintNumber": 50
+  }
+}
 
-// 인증 후: email 자동 주입
-notion-task-my-sprint {"sprintNumber": 50}
+// 진행 로그 추가
+{
+  "name": "notion-task-add-log",
+  "arguments": {
+    "pageId": "xxx",
+    "content": "작업 완료",
+    "author": "홍길동"
+  }
+}
 
-// 인증 후: author 자동 주입
-notion-task-add-log {"pageId": "xxx", "content": "작업 완료"}
+// Inbox 문서 생성
+{
+  "name": "notion-inbox-create",
+  "arguments": {
+    "title": "회의록",
+    "userIds": ["hong", "kim"],
+    "content": "# 회의 내용..."
+  }
+}
 ```
-
-### 장점
-
-- ✅ 개발자별 작업 자동 추적
-- ✅ 파라미터 입력 간소화
-- ✅ 실수로 다른 사람 이름 사용 방지
 
 ## 사용 예시
 
@@ -140,14 +157,16 @@ notion-task-add-log {"pageId": "xxx", "content": "작업 완료"}
       "env": {
         "NOTION_TOKEN": "secret_xxx",
         "NOTION_TASK_DATABASE_ID": "xxx",
-        "NOTION_SPRINT_DATABASE_ID": "xxx"
+        "NOTION_SPRINT_DATABASE_ID": "xxx",
+        "NOTION_INBOX_DATABASE_ID": "xxx",
+        "EMAIL_DOMAIN": "moonklabs.com"
       }
     }
   }
 }
 ```
 
-### Claude Desktop 설정 (원격 HTTP 서버 + 인증)
+### Claude Desktop 설정 (원격 HTTP 서버)
 
 ```json
 {
@@ -156,13 +175,8 @@ notion-task-add-log {"pageId": "xxx", "content": "작업 완료"}
       "command": "npx",
       "args": [
         "mcp-remote",
-        "http://your-server:3434/mcp",
-        "--header",
-        "Authorization: Bearer ${AUTH_TOKEN}"
-      ],
-      "env": {
-        "AUTH_TOKEN": "your-personal-token"
-      }
+        "http://your-server:3434/mcp"
+      ]
     }
   }
 }
@@ -173,7 +187,7 @@ notion-task-add-log {"pageId": "xxx", "content": "작업 완료"}
 ```bash
 # .env 파일 설정
 cp .env.example .env
-# NOTION_TOKEN, DATABASE IDs, AUTH_USERS 설정
+# NOTION_TOKEN, DATABASE IDs, EMAIL_DOMAIN 설정
 
 # 개발 모드 (자동 재로드)
 npm run dev:http
@@ -190,7 +204,6 @@ npm run start:http
 curl -X POST http://your-server:3434/mcp \
   -H "Content-Type: application/json" \
   -H "Accept: application/json, text/event-stream" \
-  -H "Authorization: Bearer your-token" \
   -d '{
     "jsonrpc": "2.0",
     "id": 1,
@@ -207,20 +220,21 @@ curl -X POST http://your-server:3434/mcp \
 # 2. initialized 알림
 curl -X POST http://your-server:3434/mcp \
   -H "mcp-session-id: <session-id>" \
-  -H "Authorization: Bearer your-token" \
   -d '{"jsonrpc": "2.0", "method": "notifications/initialized"}'
 
-# 3. 도구 호출 (email 자동 주입!)
+# 3. 도구 호출 (userId 파라미터 필수!)
 curl -X POST http://your-server:3434/mcp \
   -H "mcp-session-id: <session-id>" \
-  -H "Authorization: Bearer your-token" \
   -d '{
     "jsonrpc": "2.0",
     "id": 2,
     "method": "tools/call",
     "params": {
       "name": "notion-task-my-sprint",
-      "arguments": {"sprintNumber": 50}
+      "arguments": {
+        "userId": "hong",
+        "sprintNumber": 50
+      }
     }
   }'
 ```
@@ -236,8 +250,8 @@ docker run -d -p 3434:3434 \
   -e NOTION_TOKEN=secret_xxx \
   -e NOTION_TASK_DATABASE_ID=xxx \
   -e NOTION_SPRINT_DATABASE_ID=xxx \
-  -e AUTH_USERS=token1:user1@example.com:이름1 \
-  -e AUTH_REQUIRED=true \
+  -e NOTION_INBOX_DATABASE_ID=xxx \
+  -e EMAIL_DOMAIN=moonklabs.com \
   --name mcp-notion-task \
   mcp-notion-task
 
@@ -254,21 +268,23 @@ docker logs mcp-notion-task
 ### 도구 호출 예시
 
 ```javascript
-// 내 스프린트 작업 조회 (인증된 세션에서는 email 생략)
+// 내 스프린트 작업 조회 (userId 필수)
 {
   "name": "notion-task-my-sprint",
   "arguments": {
+    "userId": "hong",
     "sprintNumber": 50,
     "status": "진행 중"  // optional
   }
 }
 
-// 진행 로그 추가 (인증된 세션에서는 author 생략)
+// 진행 로그 추가 (author 필수)
 {
   "name": "notion-task-add-log",
   "arguments": {
     "pageId": "page-id-xxx",
     "content": "## 작업 완료\n- API 연동 완료\n- 테스트 통과",
+    "author": "홍길동",
     "logType": "progress"
   }
 }
@@ -279,6 +295,17 @@ docker logs mcp-notion-task
   "arguments": {
     "pageId": "page-id-xxx",
     "status": "완료"
+  }
+}
+
+// 작업 생성 (userId 선택)
+{
+  "name": "notion-task-create",
+  "arguments": {
+    "title": "새 작업",
+    "userId": "hong",
+    "status": "시작 전",
+    "priority": "높음"
   }
 }
 ```
@@ -301,46 +328,51 @@ docker logs mcp-notion-task
 ```
 src/
 ├── stdio.ts              # stdio transport 진입점
-├── http.ts               # HTTP transport 진입점 + 인증
-├── auth/
-│   └── index.ts          # 토큰 인증 및 세션 관리
+├── http.ts               # HTTP transport 진입점
 ├── config/
 │   └── index.ts          # 환경변수 관리
 ├── notion/
 │   ├── client.ts         # Notion 클라이언트
 │   └── types.ts          # Task, TaskStatus 타입
 ├── tools/
-│   ├── index.ts          # 도구 등록 + getUserFromSession 헬퍼
-│   └── task/             # 10개 도구 구현
-│       ├── get.ts / getLogic.ts
+│   ├── index.ts          # 도구 등록
+│   ├── task/             # 10개 Task 도구
+│   │   ├── get.ts / getLogic.ts
+│   │   ├── list.ts / listLogic.ts
+│   │   ├── mySprint.ts / mySprintLogic.ts
+│   │   ├── updateStatus.ts / updateStatusLogic.ts
+│   │   ├── update.ts / updateLogic.ts
+│   │   ├── addLog.ts / addLogLogic.ts
+│   │   ├── getContent.ts / getContentLogic.ts
+│   │   ├── create.ts / createLogic.ts
+│   │   ├── archive.ts / archiveLogic.ts
+│   │   └── help.ts / helpLogic.ts
+│   └── inbox/            # 4개 Inbox 도구
 │       ├── list.ts / listLogic.ts
-│       ├── mySprint.ts / mySprintLogic.ts        # email 자동 주입
-│       ├── updateStatus.ts / updateStatusLogic.ts
-│       ├── update.ts / updateLogic.ts
-│       ├── addLog.ts / addLogLogic.ts            # author 자동 주입
-│       ├── getContent.ts / getContentLogic.ts
+│       ├── get.ts / getLogic.ts
 │       ├── create.ts / createLogic.ts
-│       ├── archive.ts / archiveLogic.ts
-│       └── help.ts / helpLogic.ts
+│       └── update.ts / updateLogic.ts
 └── utils/
     ├── propertyBuilder.ts    # Notion 속성 빌더
     ├── propertyParser.ts     # 응답 파서
     ├── responseFormatter.ts  # 마크다운 포매터
-    └── markdownToBlocks.ts   # MD ↔ Notion 블록
+    ├── markdownToBlocks.ts   # MD ↔ Notion 블록
+    ├── userIdToEmail.ts      # userId → 이메일 변환
+    └── emailToUserId.ts      # 이메일 → UUID 변환
 ```
 
 ## HTTP 엔드포인트
 
-| 메서드 | 경로 | 인증 | 설명 |
-|--------|------|------|------|
-| POST | `/mcp` | Bearer Token | MCP 요청 처리 (세션 자동 생성) |
-| GET | `/mcp` | Bearer Token | SSE 스트림 연결 |
-| DELETE | `/mcp` | - | 세션 종료 |
-| GET | `/health` | - | 헬스 체크 (활성 세션 수 포함) |
+| 메서드 | 경로 | 설명 |
+|--------|------|------|
+| POST | `/mcp` | MCP 요청 처리 (세션 자동 생성) |
+| GET | `/mcp` | SSE 스트림 연결 |
+| DELETE | `/mcp` | 세션 종료 |
+| GET | `/health` | 헬스 체크 (활성 세션 수 포함) |
 
 **헤더 요구사항:**
-- `Authorization: Bearer <token>` - 인증 토큰 (AUTH_REQUIRED=true일 때 필수)
 - `mcp-session-id: <uuid>` - 세션 ID (initialize 후 사용)
+- `Content-Type: application/json` - JSON 요청
 
 ## Notion 데이터베이스 스키마
 

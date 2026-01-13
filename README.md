@@ -37,9 +37,11 @@ Notion MKL작업 데이터베이스 관리를 위한 MCP 서버입니다.
       "command": "node",
       "args": ["/path/to/mcp-notion-task/dist/stdio.js"],
       "env": {
-        "NOTION_API_TOKEN": "secret_xxx",
-        "TASK_DATABASE_ID": "xxx",
-        "SPRINT_DATABASE_ID": "xxx"
+        "NOTION_TOKEN": "secret_xxx",
+        "NOTION_TASK_DATABASE_ID": "xxx",
+        "NOTION_SPRINT_DATABASE_ID": "xxx",
+        "NOTION_INBOX_DATABASE_ID": "xxx",
+        "EMAIL_DOMAIN": "moonklabs.com"
       }
     }
   }
