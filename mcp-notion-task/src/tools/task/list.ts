@@ -79,8 +79,17 @@ export function registerListTool(server: McpServer): void {
       pageSize,
     }, extra) => {
       try {
+        // 디버그: extra 구조 확인
+        console.log('[DEBUG list.ts] extra:', JSON.stringify({
+          hasExtra: !!extra,
+          hasRequestInfo: !!extra?.requestInfo,
+          hasHeaders: !!extra?.requestInfo?.headers,
+          headers: extra?.requestInfo?.headers,
+        }, null, 2));
+
         // userId 파라미터 → X-User-Id 헤더 fallback
         const resolvedUserId = userId || getUserIdFromHeader(extra);
+        console.log('[DEBUG list.ts] resolvedUserId:', resolvedUserId);
 
         // userId를 이메일로 변환 후 UUID로 변환 (Notion API people 필터는 UUID만 허용)
         let resolvedAssigneeId: string | undefined;

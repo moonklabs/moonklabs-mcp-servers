@@ -13,6 +13,15 @@ type RequestHandlerExtra = any;
  */
 export function getUserIdFromHeader(extra?: RequestHandlerExtra): string | undefined {
   const headers = extra?.requestInfo?.headers;
+
+  // 디버그 로깅
+  console.log('[DEBUG headerUtils] getUserIdFromHeader called', {
+    hasHeaders: !!headers,
+    headerType: typeof headers,
+    headerKeys: headers ? Object.keys(headers) : null,
+    allHeaders: headers,
+  });
+
   if (!headers) return undefined;
 
   // headers.get() 메서드 또는 headers['x-user-id'] 형식 지원
@@ -20,8 +29,14 @@ export function getUserIdFromHeader(extra?: RequestHandlerExtra): string | undef
 
   if (typeof headers.get === 'function') {
     value = headers.get('x-user-id');
+    console.log('[DEBUG headerUtils] Using headers.get() method, value:', value);
   } else if (typeof headers === 'object') {
-    value = (headers as Record<string, string | string[]>)['x-user-id'];
+    // 대소문자 무관 검색
+    const headerKey = Object.keys(headers).find(
+      k => k.toLowerCase() === 'x-user-id'
+    );
+    value = headerKey ? (headers as Record<string, string | string[]>)[headerKey] : undefined;
+    console.log('[DEBUG headerUtils] Using object access, key:', headerKey, 'value:', value);
   }
 
   // 배열이면 첫 번째 값, 아니면 그대로 반환
@@ -29,5 +44,7 @@ export function getUserIdFromHeader(extra?: RequestHandlerExtra): string | undef
     return value[0] || undefined;
   }
 
-  return value || undefined;
+  const result = value || undefined;
+  console.log('[DEBUG headerUtils] Final result:', result);
+  return result;
 }
