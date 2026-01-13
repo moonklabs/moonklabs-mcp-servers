@@ -17,6 +17,8 @@
     "inspector": "npx @modelcontextprotocol/inspector tsx src/stdio.ts",
     "typecheck": "NODE_OPTIONS='--max-old-space-size=8192' tsc",
     "test": "vitest",
+    "test:unit": "vitest src/**/__tests__",
+    "test:integration": "vitest run src/__tests__/integration",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage"
   },
