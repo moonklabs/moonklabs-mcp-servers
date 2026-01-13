@@ -8,7 +8,7 @@
 **최초 결과**: 20개 테스트 중 10개 통과, 10개 실패
 
 **버그 수정 후**: 2026-01-13
-**현재 결과**: 20개 테스트 중 19개 통과, 1개 실패 (Notion API 일시적 오류)
+**최종 결과**: 20개 테스트 중 20개 통과 ✅ **(100%)**
 
 ## 수정 완료 ✅
 
@@ -49,9 +49,30 @@
 | createInbox: 새 Inbox 생성 | ✓ | 1.1초 |
 | updateInbox: 제목 및 태그 수정 | ✓ | 1.3초 |
 
-## 테스트 실패 (✗)
+## 개발 요약
 
-### 1. Notion 속성 타입 불일치
+### 통합 테스트 진행 과정
+
+**1단계**: 최초 통합 테스트 작성 및 실행
+- 14개 MCP 도구에 대한 20개 테스트 케이스 작성
+- 실제 Notion API 호출로 전체 워크플로우 검증
+- **결과**: 10/20 통과 (50%)
+
+**2단계**: 버그 발견 및 수정
+- 핵심 버그: `propertyParser.ts`에서 status 타입을 select로 파싱
+- 6개 파일 수정으로 status 타입 완전 지원
+- Inbox UUID 변환 누락 수정
+- **결과**: 19/20 통과 (95%)
+
+**3단계**: 최종 테스트 안정화
+- updateInbox 테스트에서 존재하지 않는 사용자 제거
+- **최종 결과**: 20/20 통과 (100%) ✅
+
+---
+
+## 발견된 버그 (수정 완료)
+
+### 1. Notion 속성 타입 불일치 ✅
 
 **실패 테스트**:
 - `listTasks: 상태 필터링`
@@ -146,39 +167,13 @@ const result = await listInbox({ author: authorId }, ...);
 - 타임아웃 값 증가: `it("테스트", async () => {...}, 30000)` (30초)
 - 또는 캐시 워밍업 로직 추가
 
-### 4. 테스트 의존성 문제
+### 4. 테스트 안정화 ✅
 
-**실패 테스트**:
-- `updateTask: 제목 및 속성 수정`
-- `updateTaskStatus: 상태 변경`
-- `addTaskLogAfterChangelog: 로그 추가`
-- `archiveTask: 작업 보관`
+**문제**: updateInbox 작성자 수정 시 Notion API `internal_server_error`
 
-**에러 메시지**:
-```
-expected undefined to be defined
-```
+**원인**: workspace에 존재하지 않는 사용자 추가 시도
 
-**원인**:
-`createTask` 테스트가 실패하여 `testTaskId`가 undefined로 남음. 이후 수정/삭제 테스트들이 모두 실패.
-
-**해결 방법**:
-1. createTask 버그 수정 (status 타입 문제)
-2. 또는 기존 작업을 사용하도록 테스트 수정
-
-## 권장 수정 순서
-
-1. **우선순위 1**: Notion status 타입 지원 추가
-   - `propertyBuilder.ts` 수정
-   - `listLogic.ts` 수정
-   - `createLogic.ts` 수정
-
-2. **우선순위 2**: Inbox userId → UUID 변환
-   - `inbox/listLogic.ts` 수정
-   - `inbox/updateLogic.ts` 수정
-
-3. **우선순위 3**: 타임아웃 조정
-   - 통합 테스트 타임아웃 30초로 증가
+**해결**: 테스트를 한 명의 작성자로만 업데이트하도록 수정
 
 ## 실행 방법
 
