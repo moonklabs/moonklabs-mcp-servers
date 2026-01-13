@@ -112,7 +112,7 @@ async function refreshUserCache(): Promise<void> {
 
     while (dbHasMore) {
       const dbResponse = await notion.databases.query({
-        database_id: config.notionTaskDatabaseId,
+        database_id: config.notion.taskDatabaseId,
         start_cursor: dbStartCursor,
         page_size: 100,
       });

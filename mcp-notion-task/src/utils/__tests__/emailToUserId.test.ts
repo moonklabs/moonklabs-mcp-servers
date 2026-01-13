@@ -24,14 +24,20 @@ vi.spyOn(clientModule, "getNotionClient").mockReturnValue(mockNotionClient as an
 
 // Config 모킹
 vi.spyOn(configModule, "getConfig").mockReturnValue({
-  notionToken: "mock-token",
-  notionTaskDatabaseId: "mock-task-db-id",
-  notionSprintDatabaseId: "mock-sprint-db-id",
-  notionInboxDatabaseId: "mock-inbox-db-id",
-  emailDomain: "example.com",
-  port: 3434,
-  host: "0.0.0.0",
-  logLevel: "info",
+  notion: {
+    token: "mock-token",
+    taskDatabaseId: "mock-task-db-id",
+    sprintDatabaseId: "mock-sprint-db-id",
+    inboxDatabaseId: "mock-inbox-db-id",
+  },
+  server: {
+    port: 3434,
+    host: "0.0.0.0",
+    logLevel: "info",
+  },
+  user: {
+    emailDomain: "example.com",
+  },
 } as any);
 
 describe("emailToUserId 유틸리티", () => {
