@@ -149,14 +149,16 @@ describe("Inbox 통합 테스트", () => {
     it("updateInbox: 작성자 수정", async () => {
       expect(testInboxId).toBeDefined();
 
+      // 한 명의 작성자로만 업데이트 (workspace에 존재하는 사용자만)
       const updatedItem = await updateInbox(testInboxId, {
-        authors: [TEST_CONFIG.testEmail, "isaacshin@moonklabs.com"],
+        authors: [TEST_CONFIG.testEmail],
       });
 
       expect(updatedItem).toBeDefined();
-      expect(updatedItem.authors).toHaveLength(2);
+      expect(updatedItem.authors).toHaveLength(1);
+      expect(updatedItem.authors[0]).toBe(TEST_CONFIG.testEmail);
 
-      console.log(`✓ updateInbox: 작성자 추가 (${updatedItem.authors.length}명)`);
+      console.log(`✓ updateInbox: 작성자 수정 완료`);
       await delay(300);
     }, 60000);
   });
