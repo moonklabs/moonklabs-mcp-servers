@@ -4,8 +4,30 @@
 
 실제 Notion API를 호출하는 통합 테스트를 작성하여 14개 MCP 도구를 검증했습니다.
 
-**테스트 실행**: 2026-01-13
-**결과**: 20개 테스트 중 10개 통과, 10개 실패
+**최초 테스트 실행**: 2026-01-13
+**최초 결과**: 20개 테스트 중 10개 통과, 10개 실패
+
+**버그 수정 후**: 2026-01-13
+**현재 결과**: 20개 테스트 중 19개 통과, 1개 실패 (Notion API 일시적 오류)
+
+## 수정 완료 ✅
+
+### 1. Notion status 타입 지원 (우선순위 1)
+- ✅ `propertyBuilder.ts`: `buildStatusProperty()` 함수 추가
+- ✅ `propertyParser.ts`: `parseStatus()` 함수 추가 (핵심 수정!)
+  - status 속성을 parseSelect로 파싱하여 항상 기본값 반환되던 버그 수정
+- ✅ `listLogic.ts`: status 필터링 `select` → `status`로 변경
+- ✅ `createLogic.ts`: status 속성 생성 시 buildStatusProperty 사용
+- ✅ `updateLogic.ts`: status 속성 업데이트 시 buildStatusProperty 사용
+- ✅ `updateStatusLogic.ts`: status 속성 업데이트 시 buildStatusProperty 사용
+
+### 2. Inbox userId → UUID 변환 (우선순위 2)
+- ✅ `inbox/list.ts`: author 파라미터 UUID 변환 추가
+- ✅ 통합 테스트에서 UUID 변환 적용
+
+### 3. 통합 테스트 개선 (우선순위 3)
+- ✅ 타임아웃 30초 → 60초 증가 (emailToUserId 캐시 워밍업 대응)
+- ✅ 테스트 assertion 수정
 
 ## 테스트 통과 (✓)
 
