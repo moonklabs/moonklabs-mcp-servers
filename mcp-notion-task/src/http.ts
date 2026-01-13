@@ -72,11 +72,19 @@ function createApp(): express.Application {
   app.use((req: Request, res: Response, next: NextFunction) => {
     const startTime = Date.now();
     const sessionId = req.headers["mcp-session-id"] as string | undefined;
+    const xUserId = req.headers["x-user-id"] as string | undefined;
 
     // 요청 로깅
     log.request(req.method, req.path, {
       sessionId: sessionId?.slice(0, 8),
       contentLength: req.headers["content-length"],
+      xUserId: xUserId,
+    });
+
+    // DEBUG 레벨에서 모든 헤더 로깅
+    log.debug("Request headers", {
+      allHeaders: req.headers,
+      xUserId: xUserId,
     });
 
     // DEBUG 레벨에서 요청 본문 로깅
