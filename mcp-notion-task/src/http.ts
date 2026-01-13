@@ -227,11 +227,11 @@ async function main(): Promise<void> {
 
   // 환경 변수 확인 로그 (민감 정보는 마스킹)
   rootLog.info("Environment variables loaded", {
-    NOTION_TOKEN: config.notionToken ? "***" + config.notionToken.slice(-4) : "NOT SET",
-    NOTION_TASK_DATABASE_ID: config.notionTaskDatabaseId || "NOT SET",
-    NOTION_SPRINT_DATABASE_ID: config.notionSprintDatabaseId || "NOT SET",
-    NOTION_INBOX_DATABASE_ID: config.notionInboxDatabaseId || "NOT SET",
-    EMAIL_DOMAIN: config.emailDomain || "NOT SET",
+    NOTION_TOKEN: config.notion.token ? "***" + config.notion.token.slice(-4) : "NOT SET",
+    NOTION_TASK_DATABASE_ID: config.notion.taskDatabaseId || "NOT SET",
+    NOTION_SPRINT_DATABASE_ID: config.notion.sprintDatabaseId || "NOT SET",
+    NOTION_INBOX_DATABASE_ID: config.notion.inboxDatabaseId || "NOT SET",
+    EMAIL_DOMAIN: config.user.emailDomain || "NOT SET",
     PORT: config.server.port,
     HOST: config.server.host,
     LOG_LEVEL: config.server.logLevel,
